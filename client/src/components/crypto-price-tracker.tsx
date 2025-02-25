@@ -9,7 +9,9 @@ interface CryptoPrice {
   change: number;
 }
 
-const SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"];
+const HOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
+const GAINER_SYMBOLS = ["DOGEUSDT", "MATICUSDT", "AVAXUSDT"];
+const LOSER_SYMBOLS = ["XRPUSDT", "ADAUSDT", "DOTUSDT"];
 
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
@@ -18,9 +20,10 @@ export default function CryptoPriceTracker() {
     const ws = new WebSocket("wss://stream.binance.com:9443/ws");
 
     ws.onopen = () => {
+      const allSymbols = [...HOT_SYMBOLS, ...GAINER_SYMBOLS, ...LOSER_SYMBOLS];
       const subscribeMsg = {
         method: "SUBSCRIBE",
-        params: SYMBOLS.map(symbol => `${symbol.toLowerCase()}@ticker`),
+        params: allSymbols.map(symbol => `${symbol.toLowerCase()}@ticker`),
         id: 1
       };
       ws.send(JSON.stringify(subscribeMsg));
@@ -45,11 +48,11 @@ export default function CryptoPriceTracker() {
     };
   }, []);
 
-  return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <h2 className="text-lg font-semibold mb-4">Live Crypto Prices</h2>
+  const renderCryptoSection = (title: string, symbols: string[]) => (
+    <div className="mb-8">
+      <h2 className="text-lg font-semibold mb-4">{title}</h2>
       <AirdropCarousel>
-        {SYMBOLS.map((symbol) => {
+        {symbols.map((symbol) => {
           const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
           const isPositive = crypto.change >= 0;
 
@@ -75,6 +78,14 @@ export default function CryptoPriceTracker() {
           );
         })}
       </AirdropCarousel>
+    </div>
+  );
+
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      {renderCryptoSection("Hot", HOT_SYMBOLS)}
+      {renderCryptoSection("Gainers", GAINER_SYMBOLS)}
+      {renderCryptoSection("Losers", LOSER_SYMBOLS)}
     </div>
   );
 }
