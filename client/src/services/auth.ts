@@ -25,7 +25,7 @@ export function useLoginMutation() {
       });
     },
   });
-  return [mutation.mutate, { isLoading: mutation.isPending }] as const;
+  return mutation;
 }
 
 export function useRegisterMutation() {
@@ -51,5 +51,5 @@ export function useRegisterMutation() {
       });
     },
   });
-  return [mutation.mutate, { isLoading: mutation.isPending }] as const;
+  return mutation;
 }

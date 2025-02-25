@@ -16,8 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { insertUserSchema } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLoginMutation, useRegisterMutation } from "@/services/auth";
-
+import { useAuth } from "@/hooks/use-auth";
 
 // Extend the user schema with password confirmation
 const authSchema = insertUserSchema.extend({
@@ -64,8 +63,7 @@ const listItemVariants = {
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const { toast } = useToast();
-  const [loginMutation, {isLoading:loginIsLoading}] = useLoginMutation();
-  const [registerMutation, {isLoading:registerIsLoading}] = useRegisterMutation();
+  const { loginMutation, registerMutation } = useAuth();
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(authSchema),
@@ -102,6 +100,8 @@ export default function AuthPage() {
     "Community discussions and insights",
     "Personalized market alerts"
   ];
+
+  const isLoading = loginMutation.isPending || registerMutation.isPending;
 
   return (
     <motion.div 
@@ -193,7 +193,7 @@ export default function AuthPage() {
                     />
                   )}
 
-                  <Button type="submit" className="w-full" disabled={loginIsLoading || registerIsLoading}>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLogin ? "Sign In" : "Create Account"}
                   </Button>
                 </form>
