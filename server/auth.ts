@@ -97,6 +97,27 @@ export function setupAuth(app: Express) {
     }
   });
 
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: SelectUser | false, info: any) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ message: "Login failed" });
+      }
+      if (!user) {
+        console.log("Login failed:", info?.message);
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Session creation error:", err);
+          return res.status(500).json({ message: "Login failed" });
+        }
+        console.log("Login successful for user:", user.id);
+        res.json(user);
+      });
+    })(req, res, next);
+  });
+
   app.post("/api/register", async (req, res) => {
     try {
       console.log("Registration attempt for:", req.body.username);
@@ -123,27 +144,6 @@ export function setupAuth(app: Express) {
       console.error("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
     }
-  });
-
-  app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: SelectUser | false, info: any) => {
-      if (err) {
-        console.error("Login error:", err);
-        return res.status(500).json({ message: "Login failed" });
-      }
-      if (!user) {
-        console.log("Login failed:", info?.message);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Session creation error:", err);
-          return res.status(500).json({ message: "Login failed" });
-        }
-        console.log("Login successful for user:", user.id);
-        res.json(user);
-      });
-    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res) => {
