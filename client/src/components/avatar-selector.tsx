@@ -1,16 +1,14 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bitcoin, Wallet, Coins, Gem, Crown, Diamond, Star, Award } from "lucide-react";
 
 const avatars = [
-  { icon: Bitcoin, label: "Bitcoin" },
-  { icon: Wallet, label: "Wallet" },
-  { icon: Coins, label: "Coins" },
-  { icon: Gem, label: "Gem" },
-  { icon: Crown, label: "Crown" },
-  { icon: Diamond, label: "Diamond" },
-  { icon: Star, label: "Star" },
-  { icon: Award, label: "Award" }
+  { emoji: "🦸", label: "Superhero" },
+  { emoji: "🧙", label: "Wizard" },
+  { emoji: "🦊", label: "Fox" },
+  { emoji: "🐼", label: "Panda" },
+  { emoji: "🦁", label: "Lion" },
+  { emoji: "🐯", label: "Tiger" },
+  { emoji: "🐉", label: "Dragon" },
+  { emoji: "🦄", label: "Unicorn" }
 ];
 
 interface AvatarSelectorProps {
@@ -21,7 +19,7 @@ interface AvatarSelectorProps {
 export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps) {
   return (
     <div className="grid grid-cols-4 gap-4 mb-6">
-      {avatars.map(({ icon: Icon, label }) => (
+      {avatars.map(({ emoji, label }) => (
         <motion.button
           key={label}
           whileHover={{ scale: 1.05 }}
@@ -34,7 +32,9 @@ export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps
           }`}
         >
           <div className="flex flex-col items-center gap-2">
-            <Icon className="w-8 h-8" />
+            <span className="text-4xl" role="img" aria-label={label}>
+              {emoji}
+            </span>
             <span className="text-sm">{label}</span>
           </div>
         </motion.button>

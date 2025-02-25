@@ -1,9 +1,20 @@
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, MessageSquare, Video, User } from "lucide-react";
+import { Home, MessageSquare, Video, User, LogOut } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const NavBar = () => {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    localStorage.removeItem('userData');
+    setLocation('/');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+  };
 
   const items = [
     { path: "/home", icon: Home, label: "Latest" },
@@ -13,12 +24,12 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 nav-gradient border-t border-border p-2">
+    <nav className="fixed bottom-0 left-0 right-0 nav-gradient border-t border-border p-2 z-50">
       <div className="flex justify-around items-center max-w-md mx-auto">
         {items.map(({ path, icon: Icon, label }) => (
-          <a
+          <button
             key={path}
-            href={path}
+            onClick={() => setLocation(path)}
             className={cn(
               "flex flex-col items-center p-2 rounded-lg transition-colors",
               location === path
@@ -28,8 +39,15 @@ const NavBar = () => {
           >
             <Icon size={24} />
             <span className="text-xs mt-1">{label}</span>
-          </a>
+          </button>
         ))}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center p-2 rounded-lg transition-colors text-muted-foreground hover:text-destructive"
+        >
+          <LogOut size={24} />
+          <span className="text-xs mt-1">Logout</span>
+        </button>
       </div>
     </nav>
   );
