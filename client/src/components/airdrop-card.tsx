@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import ShareButton from "./share-button";
 import { useToast } from "@/hooks/use-toast";
+import { useVibrate } from "@/hooks/use-vibrate"; // Added import for useVibrate
 import type { Airdrop } from "@shared/schema";
 
 interface AirdropCardProps {
@@ -28,8 +29,10 @@ interface AirdropCardProps {
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
   const { toast } = useToast();
+  const vibrate = useVibrate();
 
   const handleJoin = () => {
+    vibrate();
     // Get current user data
     const userDataStr = localStorage.getItem('userData');
     if (!userDataStr) return;
@@ -97,7 +100,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="flex-1 bg-black/20">
+              <Button variant="ghost" className="flex-1 bg-black/20" onClick={() => vibrate()}>
                 View More
               </Button>
             </DialogTrigger>
