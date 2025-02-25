@@ -101,7 +101,7 @@ export default function CryptoPriceTracker() {
   };
 
   const renderCryptoCards = (symbolList: string[]) => (
-    <AirdropCarousel onViewMore={handleViewMore}>
+    <AirdropCarousel onViewMore={handleViewMore} viewMoreCardHeight="h-[200px]">
       {symbolList.map((symbol) => {
         const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
         const isPositive = crypto.change >= 0;
