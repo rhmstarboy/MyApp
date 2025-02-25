@@ -34,12 +34,23 @@ export class MemStorage implements IStorage {
 
     // Add some sample airdrops
     this.createAirdrop({
-      name: "SpaceX Token",
+      name: "Ethereal Protocol",
       logo: "https://images.unsplash.com/photo-1641317139750-4a25ddc7e304",
-      description: "Join the SpaceX community and get early access to token distribution",
-      deadline: new Date("2025-03-25"),
-      reward: "100 SXT",
-      isFeatured: true
+      description: "Join Ethereal's Season Zero campaign and earn rewards by depositing USDe tokens",
+      deadline: new Date("2025-05-29"),
+      reward: "Ethereal Points + 50x Ethena sats",
+      platform: "eth",
+      totalValue: "n/a",
+      isFeatured: true,
+      joinLink: "https://app.ethereal.finance",
+      steps: [
+        "Acquire USDe Tokens from Binance",
+        "Visit the Ethereal Platform and connect your wallet",
+        "Make your deposit in USDe",
+        "Confirm the transaction to receive eUSDe tokens",
+        "Generate and share your referral link",
+        "Optional: Deposit into eUSDe Pendle pool for 1.6x points"
+      ]
     });
 
     this.createAirdrop({
@@ -48,7 +59,17 @@ export class MemStorage implements IStorage {
       description: "Claim your exclusive CryptoKitties NFT",
       deadline: new Date("2025-04-01"),
       reward: "1 NFT",
-      isFeatured: true
+      platform: "eth",
+      totalValue: "$100",
+      isFeatured: true,
+      joinLink: "https://www.cryptokitties.co",
+      steps: [
+        "Connect your Web3 wallet",
+        "Complete social media tasks",
+        "Join Discord community",
+        "Verify wallet ownership",
+        "Claim your NFT"
+      ]
     });
   }
 

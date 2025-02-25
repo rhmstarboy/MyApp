@@ -10,6 +10,10 @@ export const airdrops = pgTable("airdrops", {
   deadline: timestamp("deadline").notNull(),
   reward: text("reward").notNull(),
   isFeatured: boolean("is_featured").default(false),
+  platform: text("platform").notNull(),
+  totalValue: text("total_value").notNull(),
+  joinLink: text("join_link").notNull(),
+  steps: text("steps").array().notNull(),
 });
 
 export const claimedAirdrops = pgTable("claimed_airdrops", {
