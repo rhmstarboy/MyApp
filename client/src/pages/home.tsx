@@ -27,9 +27,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-20 bg-background">
-      {/* Header Section - Normal flow */}
-      <div className="border-b border-border bg-background/80 backdrop-blur-sm">
-        <div className="max-w-md mx-auto p-4">
+      <div className="max-w-md mx-auto">
+        {/* Header Section */}
+        <div className="border-b border-border bg-background/80 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -49,71 +49,70 @@ const Home = () => {
               <TabsTrigger value="confirmed" className="flex-1">Confirmed</TabsTrigger>
               <TabsTrigger value="unconfirmed" className="flex-1">Unconfirmed</TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
-      </div>
 
-      {/* All Content in Normal Flow */}
-      <div className="max-w-md mx-auto p-4">
-        {/* Airdrop Tabs Content */}
-        <div className="mb-8">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array(3).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-[280px] w-[300px] rounded-lg" />
-              ))}
+            {/* Airdrop Tabs Content */}
+            <div className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array(3).fill(0).map((_, i) => (
+                    <Skeleton key={i} className="h-[280px] w-[300px] rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <TabsContent value="featured">
+                    {featuredAirdrops && featuredAirdrops.length > 0 && (
+                      <AirdropCarousel>
+                        {featuredAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="confirmed">
+                    {confirmedAirdrops && confirmedAirdrops.length > 0 && (
+                      <AirdropCarousel>
+                        {confirmedAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="unconfirmed">
+                    {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
+                      <AirdropCarousel>
+                        {unconfirmedAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
+                </>
+              )}
             </div>
-          ) : (
-            <>
-              <TabsContent value="featured">
-                {featuredAirdrops && featuredAirdrops.length > 0 && (
-                  <AirdropCarousel>
-                    {featuredAirdrops.map((airdrop) => (
-                      <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                        <AirdropCard airdrop={airdrop} />
-                      </div>
-                    ))}
-                  </AirdropCarousel>
-                )}
-              </TabsContent>
-
-              <TabsContent value="confirmed">
-                {confirmedAirdrops && confirmedAirdrops.length > 0 && (
-                  <AirdropCarousel>
-                    {confirmedAirdrops.map((airdrop) => (
-                      <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                        <AirdropCard airdrop={airdrop} />
-                      </div>
-                    ))}
-                  </AirdropCarousel>
-                )}
-              </TabsContent>
-
-              <TabsContent value="unconfirmed">
-                {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
-                  <AirdropCarousel>
-                    {unconfirmedAirdrops.map((airdrop) => (
-                      <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                        <AirdropCard airdrop={airdrop} />
-                      </div>
-                    ))}
-                  </AirdropCarousel>
-                )}
-              </TabsContent>
-            </>
-          )}
+          </Tabs>
         </div>
 
         {/* Ad Space */}
-        <div className="h-[100px] flex items-center justify-center mb-8">
-          <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
-            Ad Space
+        <div className="p-4">
+          <div className="h-[100px] flex items-center justify-center mb-8">
+            <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
+              Ad Space
+            </div>
           </div>
-        </div>
 
-        {/* Crypto Price Tracker */}
-        <div>
-          <CryptoPriceTracker />
+          {/* Crypto Price Tracker */}
+          <div>
+            <CryptoPriceTracker />
+          </div>
         </div>
       </div>
     </div>
