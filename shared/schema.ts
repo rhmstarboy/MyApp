@@ -40,6 +40,8 @@ export const comments = pgTable("comments", {
   userId: integer("user_id").references(() => users.id).notNull(),
   parentId: integer("parent_id").references(() => comments.id),
   likes: integer("likes").default(0),
+  moderationStatus: text("moderation_status").notNull().default("pending"),
+  moderationFlags: text("moderation_flags").array(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -54,7 +56,13 @@ export const insertAirdropSchema = createInsertSchema(airdrops).omit({ id: true 
 export const insertClaimedAirdropSchema = createInsertSchema(claimedAirdrops).omit({ id: true });
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
-export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true, likes: true });
+export const insertCommentSchema = createInsertSchema(comments).omit({ 
+  id: true, 
+  createdAt: true, 
+  likes: true,
+  moderationStatus: true,
+  moderationFlags: true 
+});
 export const insertCommentLikeSchema = createInsertSchema(commentLikes).omit({ id: true, createdAt: true });
 
 export type Airdrop = typeof airdrops.$inferSelect;

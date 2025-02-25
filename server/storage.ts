@@ -7,6 +7,7 @@ import {
   type CommentLike, type InsertCommentLike,
   users, comments, commentLikes
 } from "@shared/schema";
+import { moderateContent } from "./services/moderation";
 
 export interface IStorage {
   // User methods
@@ -21,6 +22,7 @@ export interface IStorage {
   getComments(parentId?: number): Promise<Comment[]>;
   likeComment(like: InsertCommentLike): Promise<CommentLike>;
   unlikeComment(userId: number, commentId: number): Promise<void>;
+  updateCommentModeration(commentId: number, status: string, flags: string[]): Promise<void>;
 
   // Keep existing methods
   getAirdrops(): Promise<Airdrop[]>;
@@ -54,7 +56,18 @@ export class DatabaseStorage implements IStorage {
 
   // Comment methods
   async createComment(insertComment: InsertComment): Promise<Comment> {
-    const [comment] = await db.insert(comments).values(insertComment).returning();
+    // First create the comment with pending moderation status
+    const [comment] = await db.insert(comments)
+      .values({
+        ...insertComment,
+        moderationStatus: 'pending',
+        moderationFlags: []
+      })
+      .returning();
+
+    // Start moderation in the background
+    this.moderateComment(comment.id, comment.content).catch(console.error);
+
     return comment;
   }
 
@@ -89,6 +102,20 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(comments)
       .set({ likes: comments.likes - 1 })
+      .where(eq(comments.id, commentId));
+  }
+
+  private async moderateComment(commentId: number, content: string): Promise<void> {
+    const result = await moderateContent(content);
+    await this.updateCommentModeration(commentId, result.status, result.flags);
+  }
+
+  async updateCommentModeration(commentId: number, status: string, flags: string[]): Promise<void> {
+    await db.update(comments)
+      .set({ 
+        moderationStatus: status,
+        moderationFlags: flags
+      })
       .where(eq(comments.id, commentId));
   }
 

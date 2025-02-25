@@ -5,10 +5,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ThumbsUp, Reply, ChevronDown, ChevronUp } from "lucide-react";
+import { ThumbsUp, Reply, ChevronDown, ChevronUp, AlertTriangle, ShieldAlert, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import type { Comment, InsertComment } from "@shared/schema";
+import { cn } from "@/lib/utils"; // Using cn instead of classnames
+
+const ModerationIndicator = ({ status, flags }: { status: string, flags: string[] | null }) => {
+  switch (status) {
+    case 'approved':
+      return <Shield className="h-4 w-4 text-green-500" aria-label="Approved" />;
+    case 'pending':
+      return <Shield className="h-4 w-4 text-yellow-500 animate-pulse" aria-label="Pending Review" />;
+    case 'flagged':
+      return (
+        <div className="flex items-center gap-1">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <span className="text-xs text-muted-foreground">Under Review</span>
+        </div>
+      );
+    case 'rejected':
+      return (
+        <div className="flex items-center gap-1">
+          <ShieldAlert className="h-4 w-4 text-red-500" />
+          <span className="text-xs text-muted-foreground">Content Hidden</span>
+        </div>
+      );
+    default:
+      return null;
+  }
+};
 
 const CommentSection = () => {
   const [newComment, setNewComment] = useState("");
@@ -36,7 +62,7 @@ const CommentSection = () => {
       setNewComment("");
       toast({
         title: "Comment posted",
-        description: "Your comment has been posted successfully.",
+        description: "Your comment has been submitted for moderation.",
       });
     },
     onError: () => {
@@ -65,8 +91,8 @@ const CommentSection = () => {
     if (!newComment.trim()) return;
     createCommentMutation.mutate({
       content: newComment,
-      parentId: null,
       userId: 1, // This will be replaced with actual user ID once auth is implemented
+      parentId: null
     });
   };
 
@@ -74,8 +100,8 @@ const CommentSection = () => {
     if (!replyText.trim()) return;
     createCommentMutation.mutate({
       content: replyText,
-      parentId,
       userId: 1, // This will be replaced with actual user ID once auth is implemented
+      parentId
     });
     setReplyingTo(null);
     setReplyText("");
@@ -93,6 +119,17 @@ const CommentSection = () => {
     const replies = comments?.filter(c => c.parentId === comment.id) || [];
     const isExpanded = expandedComments.includes(comment.id);
 
+    if (comment.moderationStatus === 'rejected') {
+      return (
+        <Card key={comment.id} className={cn("p-4 mb-4", isReply && "ml-8")}>
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-red-500" />
+            <p className="text-sm text-muted-foreground">This comment has been removed.</p>
+          </div>
+        </Card>
+      );
+    }
+
     return (
       <Card key={comment.id} className={cn("p-4 mb-4", isReply && "ml-8")}>
         <div className="flex items-start gap-4">
@@ -103,10 +140,26 @@ const CommentSection = () => {
             <div className="flex items-center gap-2 mb-2">
               <span className="font-semibold">User {comment.userId}</span>
               <span className="text-xs text-muted-foreground">
-                {new Date(comment.createdAt).toLocaleString()}
+                {new Date(comment.createdAt!).toLocaleString()}
               </span>
+              <ModerationIndicator 
+                status={comment.moderationStatus} 
+                flags={comment.moderationFlags} 
+              />
             </div>
-            <p className="text-sm mb-4">{comment.content}</p>
+            {comment.moderationStatus === 'flagged' ? (
+              <div className="bg-yellow-500/10 p-2 rounded-md mb-2">
+                <p className="text-sm text-yellow-500">
+                  This comment is under review. It may contain sensitive content.
+                </p>
+                <details className="mt-2">
+                  <summary className="text-sm text-muted-foreground cursor-pointer">View anyway</summary>
+                  <p className="mt-2 text-sm">{comment.content}</p>
+                </details>
+              </div>
+            ) : (
+              <p className="text-sm mb-4">{comment.content}</p>
+            )}
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -181,7 +234,7 @@ const CommentSection = () => {
     <div className="min-h-screen pb-20 bg-background">
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-8">Community Discussion</h1>
-        
+
         {/* New Comment Input */}
         <Card className="p-4 mb-8">
           <Textarea
