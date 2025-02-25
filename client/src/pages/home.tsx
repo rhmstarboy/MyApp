@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCard from "@/components/airdrop-card";
-import AirdropCarousel from "@/components/airdrop-carousel";
-import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
+import { sampleAirdrops } from "@/data/airdrops";
 import type { Airdrop } from "@shared/schema";
 
 const Home = () => {
@@ -23,17 +21,13 @@ const Home = () => {
     return null;
   }
 
-  const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
-    queryKey: ["/api/airdrops"],
-  });
-
-  const filteredAirdrops = airdrops?.filter((airdrop) =>
+  const filteredAirdrops = sampleAirdrops.filter((airdrop) =>
     airdrop.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const featuredAirdrops = filteredAirdrops?.filter((a) => a.isFeatured);
-  const confirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "confirmed");
-  const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
+  const featuredAirdrops = filteredAirdrops.filter((a) => a.isFeatured);
+  const confirmedAirdrops = filteredAirdrops;
+  const unconfirmedAirdrops = filteredAirdrops;
 
   const handleViewMore = () => {
     toast({
@@ -68,51 +62,29 @@ const Home = () => {
             </TabsList>
 
             <div className="mt-6">
-              {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array(3).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-[280px] w-[300px] rounded-lg" />
+              <TabsContent value="featured">
+                <div className="grid grid-cols-1 gap-4">
+                  {featuredAirdrops.map((airdrop) => (
+                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
                   ))}
                 </div>
-              ) : (
-                <>
-                  <TabsContent value="featured">
-                    {featuredAirdrops && featuredAirdrops.length > 0 && (
-                      <AirdropCarousel onViewMore={handleViewMore}>
-                        {featuredAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                            <AirdropCard airdrop={airdrop} />
-                          </div>
-                        ))}
-                      </AirdropCarousel>
-                    )}
-                  </TabsContent>
+              </TabsContent>
 
-                  <TabsContent value="confirmed">
-                    {confirmedAirdrops && confirmedAirdrops.length > 0 && (
-                      <AirdropCarousel onViewMore={handleViewMore}>
-                        {confirmedAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                            <AirdropCard airdrop={airdrop} />
-                          </div>
-                        ))}
-                      </AirdropCarousel>
-                    )}
-                  </TabsContent>
+              <TabsContent value="confirmed">
+                <div className="grid grid-cols-1 gap-4">
+                  {confirmedAirdrops.map((airdrop) => (
+                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
+                  ))}
+                </div>
+              </TabsContent>
 
-                  <TabsContent value="unconfirmed">
-                    {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
-                      <AirdropCarousel onViewMore={handleViewMore}>
-                        {unconfirmedAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
-                            <AirdropCard airdrop={airdrop} />
-                          </div>
-                        ))}
-                      </AirdropCarousel>
-                    )}
-                  </TabsContent>
-                </>
-              )}
+              <TabsContent value="unconfirmed">
+                <div className="grid grid-cols-1 gap-4">
+                  {unconfirmedAirdrops.map((airdrop) => (
+                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
+                  ))}
+                </div>
+              </TabsContent>
             </div>
           </Tabs>
         </div>
