@@ -14,6 +14,7 @@ export const airdrops = pgTable("airdrops", {
   totalValue: text("total_value").notNull(),
   joinLink: text("join_link").notNull(),
   steps: text("steps").array().notNull(),
+  status: text("status").notNull().default("unconfirmed"),
 });
 
 export const claimedAirdrops = pgTable("claimed_airdrops", {

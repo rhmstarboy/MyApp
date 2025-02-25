@@ -1,5 +1,4 @@
 import { type Airdrop, type InsertAirdrop, type ClaimedAirdrop, type InsertClaimedAirdrop } from "@shared/schema";
-import { users, type User, type InsertUser } from "@shared/schema";
 
 export interface IStorage {
   // Airdrop methods
@@ -10,25 +9,17 @@ export interface IStorage {
   // Claimed airdrop methods
   getClaimedAirdrops(): Promise<ClaimedAirdrop[]>;
   createClaimedAirdrop(claimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop>;
-
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
   private airdrops: Map<number, Airdrop>;
   private claimedAirdrops: Map<number, ClaimedAirdrop>;
-  private currentId: number;
   private currentAirdropId: number;
   private currentClaimedId: number;
 
   constructor() {
-    this.users = new Map();
     this.airdrops = new Map();
     this.claimedAirdrops = new Map();
-    this.currentId = 1;
     this.currentAirdropId = 1;
     this.currentClaimedId = 1;
 
@@ -43,6 +34,7 @@ export class MemStorage implements IStorage {
       totalValue: "n/a",
       isFeatured: true,
       joinLink: "https://app.ethereal.finance",
+      status: "confirmed",
       steps: [
         "Acquire USDe Tokens from Binance",
         "Visit the Ethereal Platform and connect your wallet",
@@ -63,6 +55,7 @@ export class MemStorage implements IStorage {
       totalValue: "$100",
       isFeatured: true,
       joinLink: "https://www.cryptokitties.co",
+      status: "unconfirmed",
       steps: [
         "Connect your Web3 wallet",
         "Complete social media tasks",
@@ -71,23 +64,6 @@ export class MemStorage implements IStorage {
         "Claim your NFT"
       ]
     });
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
   }
 
   async getAirdrops(): Promise<Airdrop[]> {
