@@ -10,6 +10,7 @@ import WhaleAlert from "./whale-alert";
 import HotTrends from "./hot-trends";
 import NetworkHealth from "./network-health";
 import GlobalTrading from "./global-trading";
+import SocialSentiment from "./social-sentiment";
 
 interface CryptoPrice {
   symbol: string;
@@ -146,6 +147,7 @@ export default function CryptoPriceTracker() {
         <WhaleAlert />
         <HotTrends />
         <NetworkHealth />
+        <SocialSentiment />
         <GlobalTrading />
       </div>
 
