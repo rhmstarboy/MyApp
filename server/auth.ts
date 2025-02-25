@@ -103,18 +103,30 @@ export function setupAuth(app: Express) {
     }
   });
 
+  // Registration endpoint - only creates unverified user
   app.post("/api/register", async (req, res) => {
     try {
       console.log("Registration attempt for:", req.body.username);
+
+      // Check for existing username
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         console.log("Username already exists:", req.body.username);
         return res.status(400).json({ message: "Username already exists" });
       }
 
+      // Check for existing email
+      const existingEmail = await storage.getUserByEmail(req.body.email);
+      if (existingEmail) {
+        console.log("Email already exists:", req.body.email);
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      // Create unverified user
       const user = await storage.createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
+        isVerified: false
       });
 
       // Generate and send OTP

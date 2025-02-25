@@ -91,7 +91,11 @@ export default function AuthPage() {
         const response = await fetch("/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            username: data.username,
+            email: data.email,
+            password: data.password
+          }),
         });
 
         if (!response.ok) {
@@ -128,11 +132,15 @@ export default function AuthPage() {
       }
 
       const user = await response.json();
-      registerMutation.mutate(user);
-
       toast({
         title: "Success",
         description: "Your account has been verified successfully!",
+      });
+
+      // After verification, log the user in
+      loginMutation.mutate({
+        username: user.username,
+        password: form.getValues("password"),
       });
     } catch (error) {
       toast({
