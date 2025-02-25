@@ -9,7 +9,6 @@ import CryptoMood from "./crypto-mood";
 import WhaleAlert from "./whale-alert";
 import HotTrends from "./hot-trends";
 import NetworkHealth from "./network-health";
-import FearAndGreed from "./fear-and-greed";
 import GlobalTrading from "./global-trading";
 
 interface CryptoPrice {
@@ -147,7 +146,6 @@ export default function CryptoPriceTracker() {
         <WhaleAlert />
         <HotTrends />
         <NetworkHealth />
-        <FearAndGreed />
         <GlobalTrading />
       </div>
 

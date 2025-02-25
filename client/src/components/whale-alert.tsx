@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Waves } from "lucide-react";
+import { Waves, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 interface WhaleTransaction {
   id: string;
@@ -10,6 +10,7 @@ interface WhaleTransaction {
   amount: string;
   coin: string;
   timestamp: Date;
+  type: 'buy' | 'sell';
 }
 
 const formatAddress = (address: string) => {
@@ -33,14 +34,18 @@ export default function WhaleAlert() {
   // Simulate whale transactions for demo
   useEffect(() => {
     const coins = ["BTC", "ETH", "SOL"];
-    const generateTransaction = (): WhaleTransaction => ({
-      id: Math.random().toString(36).substring(7),
-      from: "0x" + Math.random().toString(36).substr(2, 34),
-      to: "0x" + Math.random().toString(36).substr(2, 34),
-      amount: (Math.random() * 10000000).toFixed(2),
-      coin: coins[Math.floor(Math.random() * coins.length)],
-      timestamp: new Date(),
-    });
+    const generateTransaction = (): WhaleTransaction => {
+      const type = Math.random() > 0.5 ? 'buy' : 'sell';
+      return {
+        id: Math.random().toString(36).substring(7),
+        from: "0x" + Math.random().toString(36).substr(2, 34),
+        to: "0x" + Math.random().toString(36).substr(2, 34),
+        amount: (Math.random() * 10000000).toFixed(2),
+        coin: coins[Math.floor(Math.random() * coins.length)],
+        timestamp: new Date(),
+        type
+      };
+    };
 
     // Add initial transactions
     setTransactions([generateTransaction()]);
@@ -92,12 +97,24 @@ export default function WhaleAlert() {
                     <span className="text-sm text-muted-foreground">
                       {formatAddress(tx.from)} → {formatAddress(tx.to)}
                     </span>
-                    <span className="text-sm font-medium text-primary">
-                      {formatAmount(tx.amount)} {tx.coin}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      {tx.type === 'buy' ? (
+                        <ArrowUpRight className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4 text-red-500" />
+                      )}
+                      <span className={`text-sm font-medium ${tx.type === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                        {formatAmount(tx.amount)} {tx.coin}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(tx.timestamp).toLocaleTimeString()}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(tx.timestamp).toLocaleTimeString()}
+                    </span>
+                    <span className={`text-xs ${tx.type === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                      Whale {tx.type === 'buy' ? 'Accumulation' : 'Distribution'}
+                    </span>
                   </div>
                 </div>
 
@@ -114,7 +131,7 @@ export default function WhaleAlert() {
                     ease: "easeOut",
                   }}
                 >
-                  <div className="w-full h-full border-2 border-primary/20 rounded-lg" />
+                  <div className={`w-full h-full border-2 border-primary/20 rounded-lg`} />
                 </motion.div>
               </motion.div>
             ))}
