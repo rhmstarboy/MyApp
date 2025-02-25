@@ -5,11 +5,13 @@ import { Settings, Bell, Shield, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const Profile = () => {
-  const { user, logoutMutation } = useAuth();
+  const userData = localStorage.getItem('userData');
+  const user = userData ? JSON.parse(userData) : null;
   const initials = user?.username.slice(0, 2).toUpperCase() || "UN";
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    localStorage.removeItem('userData');
+    window.location.href = "/";
   };
 
   return (
@@ -29,8 +31,8 @@ const Profile = () => {
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-xl font-semibold">{user?.username}</h2>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <h2 className="text-xl font-semibold">{user?.fullName}</h2>
+                <p className="text-sm text-muted-foreground">@{user?.username}</p>
               </div>
             </div>
 
