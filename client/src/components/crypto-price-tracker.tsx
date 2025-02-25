@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCarousel from "./airdrop-carousel";
+import CryptoMood from "./crypto-mood";
 
 interface CryptoPrice {
   symbol: string;
@@ -132,6 +133,14 @@ export default function CryptoPriceTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      {/* Add CryptoMood component at the top */}
+      <div className="mb-6">
+        <CryptoMood 
+          gainersCount={symbols.gainers.length}
+          losersCount={symbols.losers.length}
+        />
+      </div>
+
       <Tabs defaultValue="hot" className="w-full">
         <TabsList className="w-full mb-6 bg-primary/20">
           <TabsTrigger value="hot" className="flex-1">Hot</TabsTrigger>
