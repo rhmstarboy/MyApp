@@ -46,7 +46,7 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="h-20 w-20">
-                <AvatarFallback className="text-xl flex items-center justify-center">
+                <AvatarFallback className="text-2xl flex items-center justify-center">
                   {user?.avatar ? avatarEmojis[user.avatar] : initials}
                 </AvatarFallback>
               </Avatar>
@@ -58,11 +58,11 @@ const Profile = () => {
 
             <div className="grid grid-cols-2 gap-4 text-center mb-6">
               <div className="bg-muted/20 rounded-lg p-3">
-                <p className="text-2xl font-bold text-primary">12</p>
+                <p className="text-2xl font-bold text-primary">{user?.claimedAirdrops || 0}</p>
                 <p className="text-sm text-muted-foreground">Claimed</p>
               </div>
               <div className="bg-muted/20 rounded-lg p-3">
-                <p className="text-2xl font-bold text-primary">$530</p>
+                <p className="text-2xl font-bold text-primary">${user?.totalValue || 0}</p>
                 <p className="text-sm text-muted-foreground">Total Value</p>
               </div>
             </div>

@@ -18,6 +18,7 @@ import {
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import ShareButton from "./share-button";
+import { useToast } from "@/hooks/use-toast";
 import type { Airdrop } from "@shared/schema";
 
 interface AirdropCardProps {
@@ -26,6 +27,34 @@ interface AirdropCardProps {
 
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleJoin = () => {
+    // Get current user data
+    const userDataStr = localStorage.getItem('userData');
+    if (!userDataStr) return;
+
+    const userData = JSON.parse(userDataStr);
+
+    // Update claimed count and total value
+    const updatedUserData = {
+      ...userData,
+      claimedAirdrops: (userData.claimedAirdrops || 0) + 1,
+      totalValue: (userData.totalValue || 0) + parseFloat(airdrop.totalValue.replace(/[^0-9.]/g, ''))
+    };
+
+    // Save updated user data
+    localStorage.setItem('userData', JSON.stringify(updatedUserData));
+
+    // Open airdrop link
+    window.open(airdrop.joinLink, '_blank');
+
+    // Show success toast
+    toast({
+      title: "Airdrop Claimed!",
+      description: "The airdrop has been added to your profile.",
+    });
+  };
 
   return (
     <>
@@ -97,7 +126,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             />
             <Button 
               className="bg-primary/20 hover:bg-primary/30"
-              onClick={() => window.open(airdrop.joinLink, '_blank')}
+              onClick={handleJoin}
             >
               Join <ExternalLink className="ml-2 h-4 w-4" />
             </Button>

@@ -92,7 +92,9 @@ export default function AuthPage() {
       // Store user data in localStorage
       const userData = {
         ...data,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        claimedAirdrops: 0,
+        totalValue: 0
       };
       localStorage.setItem('userData', JSON.stringify(userData));
 
