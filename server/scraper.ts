@@ -15,25 +15,25 @@ export class AirdropScraper {
       const $ = cheerio.load(response.data);
       const airdrops: InsertAirdrop[] = [];
 
-      // Each airdrop is in an article element
-      $("article.b-airdrop").each((_, element) => {
+      // Each airdrop item is in a list item with class 'wp-block-post'
+      $("li.wp-block-post").each((_, element) => {
         const $el = $(element);
-        const name = $el.find("h3.b-airdrop__title").text().trim();
-        const description = $el.find(".b-airdrop__description").text().trim();
-        const reward = $el.find(".b-airdrop__reward").text().trim() || "n/a";
-        const platform = $el.find(".b-airdrop__network").text().trim().toLowerCase() || "eth";
-        const totalValue = $el.find(".b-airdrop__value").text().trim() || "n/a";
-        const joinLink = $el.find("a.b-airdrop__link").attr("href") || "#";
 
-        // Get deadline if available
-        const deadlineText = $el.find(".b-airdrop__end-date").text().trim();
-        const deadline = deadlineText ? new Date(deadlineText) : new Date("2025-12-31");
+        // Extract all required information
+        const name = $el.find(".wp-block-post-title").text().trim();
+        const description = $el.find(".wp-block-post-excerpt__excerpt").text().trim();
+        const reward = $el.find(".airdrop-reward").text().trim() || "n/a";
+        const platform = $el.find(".airdrop-network").text().trim().toLowerCase() || "eth";
+        const totalValue = $el.find(".airdrop-value").text().trim() || "n/a";
+        const joinLink = $el.find(".wp-block-post-title a").attr("href") || "#";
 
-        // Get requirements/steps
-        const steps: string[] = [];
-        $el.find(".b-airdrop__requirements li").each((_, step) => {
-          steps.push($(step).text().trim());
-        });
+        // Get the logo image
+        const logo = $el.find(".wp-block-post-featured-image img").attr("src") || 
+                    "https://via.placeholder.com/150";
+
+        // Set a default deadline 3 months from now
+        const deadline = new Date();
+        deadline.setMonth(deadline.getMonth() + 3);
 
         // Only add if we have the minimum required fields
         if (name && description) {
@@ -41,14 +41,20 @@ export class AirdropScraper {
             name,
             description,
             reward,
-            logo: $el.find(".b-airdrop__logo img").attr("src") || "https://via.placeholder.com/150",
+            logo,
             deadline,
             platform,
             totalValue,
             isFeatured: false,
             joinLink,
-            status: url.includes("confirmed") ? "confirmed" : "unconfirmed",
-            steps: steps.length > 0 ? steps : ["Connect Wallet", "Complete Tasks", "Claim Airdrop"],
+            status: this.determineStatus(url),
+            steps: [
+              "Connect your Web3 wallet",
+              "Complete required social tasks",
+              "Verify eligibility",
+              "Submit wallet address",
+              "Wait for token distribution"
+            ],
           });
         }
       });
@@ -58,6 +64,12 @@ export class AirdropScraper {
       log(`Error scraping section ${url}: ${error}`, "scraper");
       return [];
     }
+  }
+
+  private determineStatus(url: string): string {
+    if (url.includes("/latest")) return "unconfirmed";
+    if (url.includes("/category/confirmed-airdrops")) return "confirmed";
+    return "unconfirmed";
   }
 
   async scrapeAirdrops() {
@@ -72,27 +84,32 @@ export class AirdropScraper {
 
       // Scrape different sections
       const sections = [
-        { url: `${this.baseUrl}/latest`, isFeatured: true },
-        { url: `${this.baseUrl}/confirmed`, isFeatured: false },
-        { url: `${this.baseUrl}/unconfirmed`, isFeatured: false },
+        { url: `${this.baseUrl}`, isFeatured: true }, // Latest on homepage
+        { url: `${this.baseUrl}/category/confirmed-airdrops`, isFeatured: false },
+        { url: `${this.baseUrl}/category/upcoming-airdrops`, isFeatured: false },
       ];
 
       for (const section of sections) {
-        const airdrops = await this.scrapeSection(section.url);
+        try {
+          const airdrops = await this.scrapeSection(section.url);
 
-        // Mark latest airdrops as featured
-        if (section.isFeatured) {
-          airdrops.forEach(airdrop => {
-            airdrop.isFeatured = true;
-          });
+          // Mark latest airdrops as featured
+          if (section.isFeatured) {
+            airdrops.forEach(airdrop => {
+              airdrop.isFeatured = true;
+            });
+          }
+
+          // Add new airdrops to storage
+          for (const airdrop of airdrops) {
+            await storage.createAirdrop(airdrop);
+          }
+
+          log(`Successfully scraped ${airdrops.length} airdrops from ${section.url}`, "scraper");
+        } catch (error) {
+          log(`Error processing section ${section.url}: ${error}`, "scraper");
+          continue; // Continue with next section even if one fails
         }
-
-        // Add new airdrops to storage
-        for (const airdrop of airdrops) {
-          await storage.createAirdrop(airdrop);
-        }
-
-        log(`Successfully scraped ${airdrops.length} airdrops from ${section.url}`, "scraper");
       }
     } catch (error) {
       log(`Error during scraping: ${error}`, "scraper");
