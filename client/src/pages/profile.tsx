@@ -2,16 +2,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings, Bell, Shield, LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+
+// Avatar mapping (keep in sync with avatar-selector.tsx)
+const avatarEmojis: Record<string, string> = {
+  "Superhero": "🦸",
+  "Wizard": "🧙",
+  "Fox": "🦊",
+  "Panda": "🐼",
+  "Lion": "🦁",
+  "Tiger": "🐯",
+  "Dragon": "🐉",
+  "Unicorn": "🦄"
+};
 
 const Profile = () => {
   const userData = localStorage.getItem('userData');
   const user = userData ? JSON.parse(userData) : null;
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const initials = user?.username.slice(0, 2).toUpperCase() || "UN";
 
   const handleLogout = () => {
     localStorage.removeItem('userData');
-    window.location.href = "/";
+    setLocation('/');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
   };
 
   return (
@@ -27,7 +46,7 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={user?.avatar} />
+                <div className="text-4xl">{user?.avatar ? avatarEmojis[user.avatar] : initials}</div>
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div>
