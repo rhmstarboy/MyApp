@@ -26,7 +26,7 @@ const Home = () => {
   const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
 
   return (
-    <div className="min-h-screen pb-[80px]"> {/* Only account for navbar height */}
+    <div className="min-h-screen pb-20"> {/* Only account for navbar height */}
       <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-md mx-auto p-4">
           <div className="flex items-center justify-between mb-4">
@@ -100,17 +100,17 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Main content - Not fixed */}
-      <div className="max-w-md mx-auto p-4">
+      {/* Main content - Normal flow, no fixed positioning */}
+      <div className="max-w-md mx-auto p-4 space-y-8">
         {/* Ad Space */}
-        <div className="h-[100px] flex items-center justify-center my-8">
+        <div className="h-[100px] flex items-center justify-center">
           <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
             Ad Space
           </div>
         </div>
 
         {/* Crypto Price Tracker */}
-        <div className="mt-8">
+        <div>
           <CryptoPriceTracker />
         </div>
       </div>
