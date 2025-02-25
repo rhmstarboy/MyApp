@@ -28,33 +28,33 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-      <Card className="overflow-hidden border-border/50 bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors">
+      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors">
         <CardHeader className="flex flex-row items-center gap-4 p-4">
           <Avatar className="h-12 w-12">
             <AvatarImage src={airdrop.logo} alt={airdrop.name} />
             <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold">{airdrop.name}</h3>
-            <p className="text-sm text-muted-foreground">{airdrop.reward}</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold truncate">{airdrop.name}</h3>
+            <p className="text-sm text-muted-foreground truncate">{airdrop.reward}</p>
           </div>
           {airdrop.isFeatured && (
-            <Badge variant="secondary" className="bg-primary/20 text-primary">
+            <Badge variant="secondary" className="bg-primary/20 text-primary shrink-0">
               Featured
             </Badge>
           )}
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-4">
-          <p className="text-sm text-muted-foreground">{airdrop.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{airdrop.description}</p>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-muted-foreground">Total Value</p>
-              <p className="text-sm font-medium">{airdrop.totalValue}</p>
+              <p className="text-sm font-medium truncate">{airdrop.totalValue}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Platform</p>
-              <p className="text-sm font-medium">{airdrop.platform}</p>
+              <p className="text-sm font-medium truncate">{airdrop.platform}</p>
             </div>
           </div>
 
@@ -62,7 +62,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             Deadline: {format(new Date(airdrop.deadline), "MMM d, yyyy")}
           </p>
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2 mt-auto">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex-1">
