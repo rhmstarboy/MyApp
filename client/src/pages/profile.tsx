@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings, Bell, Shield, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -46,8 +46,9 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="h-20 w-20">
-                <div className="text-4xl">{user?.avatar ? avatarEmojis[user.avatar] : initials}</div>
-                <AvatarFallback>{initials}</AvatarFallback>
+                <AvatarFallback className="text-4xl flex items-center justify-center">
+                  {user?.avatar ? avatarEmojis[user.avatar] : initials}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <h2 className="text-xl font-semibold">{user?.fullName}</h2>
