@@ -28,8 +28,8 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Main scrollable content */}
-      <div className="pb-[calc(280px+100px)]"> {/* Space for crypto tracker + ad */}
-        <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border z-10">
+      <div className="pb-[calc(380px+100px)]"> {/* Increased bottom padding */}
+        <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border"> {/* Removed z-10 */}
           <div className="max-w-4xl mx-auto p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="relative flex-1 max-w-md">
@@ -113,7 +113,7 @@ const Home = () => {
         </div>
 
         {/* Crypto Price Tracker */}
-        <div className="bg-gradient-to-t from-background via-background to-transparent pb-4">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pb-4 mt-4"> {/* Added spacing */}
           <CryptoPriceTracker />
         </div>
       </div>
