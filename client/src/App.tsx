@@ -10,6 +10,7 @@ import Comments from "@/pages/comments";
 import Tutorials from "@/pages/tutorials";
 import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
+import LoadingTest from "@/pages/loading-test";
 
 function Router() {
   return (
@@ -19,6 +20,7 @@ function Router() {
       <ProtectedRoute path="/comments" component={Comments} />
       <ProtectedRoute path="/tutorials" component={Tutorials} />
       <ProtectedRoute path="/profile" component={Profile} />
+      <Route path="/loading-test" component={LoadingTest} />
       <Route component={NotFound} />
     </Switch>
   );
