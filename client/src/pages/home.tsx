@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AirdropCard from "@/components/airdrop-card";
 import AirdropCarousel from "@/components/airdrop-carousel";
+import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
 
@@ -98,6 +99,9 @@ const Home = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Add the CryptoPriceTracker component below the airdrop cards */}
+      <CryptoPriceTracker />
     </div>
   );
 };
