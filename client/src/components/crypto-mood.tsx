@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { SunIcon, CloudRainIcon, CloudLightningIcon, SunDimIcon } from "lucide-react";
 
+interface CryptoPrice {
+  symbol: string;
+  price: number;
+  change: number;
+}
+
 interface MoodState {
   icon: typeof SunIcon;
   color: string;
@@ -38,24 +44,28 @@ const moodStates: Record<string, MoodState> = {
 };
 
 interface CryptoMoodProps {
-  gainersCount: number;
-  losersCount: number;
+  data: Record<string, CryptoPrice>;
 }
 
-export default function CryptoMood({ gainersCount, losersCount }: CryptoMoodProps) {
+export default function CryptoMood({ data }: CryptoMoodProps) {
   const [currentMood, setCurrentMood] = useState<keyof typeof moodStates>("neutral");
 
   useEffect(() => {
-    // Calculate market sentiment
-    const ratio = gainersCount / (gainersCount + losersCount);
-    
+    // Calculate market sentiment from price data
+    const prices = Object.values(data);
+    if (prices.length === 0) return;
+
+    const gainers = prices.filter(p => p.change > 0).length;
+    const total = prices.length;
+    const ratio = gainers / total;
+
     let newMood: keyof typeof moodStates = "neutral";
     if (ratio >= 0.7) newMood = "bullish";
     else if (ratio >= 0.55) newMood = "positive";
     else if (ratio <= 0.3) newMood = "bearish";
-    
+
     setCurrentMood(newMood);
-  }, [gainersCount, losersCount]);
+  }, [data]);
 
   const mood = moodStates[currentMood];
   const Icon = mood.icon;
