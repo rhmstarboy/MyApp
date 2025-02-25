@@ -100,18 +100,21 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Ad Space */}
-      <div className="max-w-4xl mx-auto mt-8">
-        <div className="h-[100px] flex items-center justify-center">
-          <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
-            Ad Space
+      {/* Fixed bottom section containing both Ad and Crypto */}
+      <div className="fixed bottom-[80px] left-0 right-0 bg-gradient-to-t from-background via-background to-transparent">
+        {/* Ad Space */}
+        <div className="max-w-4xl mx-auto">
+          <div className="h-[100px] flex items-center justify-center">
+            <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
+              Ad Space
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Crypto Price Tracker */}
-      <div className="mt-4 bg-gradient-to-t from-background via-background to-transparent">
-        <CryptoPriceTracker />
+        {/* Crypto Price Tracker */}
+        <div className="mt-4">
+          <CryptoPriceTracker />
+        </div>
       </div>
     </div>
   );
