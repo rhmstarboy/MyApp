@@ -53,48 +53,16 @@ const changeVariants = {
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
   const [symbols, setSymbols] = useState<CryptoSymbols>({ gainers: [], losers: [] });
+  const [wsError, setWsError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Function to fetch top gainers and losers
-  const fetchTopMovers = async () => {
-    try {
-      const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
-      const data = await response.json();
-
-      // Filter for USDT pairs and sort by price change percentage
-      const usdtPairs = data.filter((pair: any) => pair.symbol.endsWith('USDT'));
-      const sorted = usdtPairs.sort((a: any, b: any) =>
-        Math.abs(parseFloat(b.priceChangePercent)) - Math.abs(parseFloat(a.priceChangePercent))
-      );
-
-      // Get top 3 gainers and losers
-      const gainers = sorted
-        .filter((pair: any) => parseFloat(pair.priceChangePercent) > 0)
-        .slice(0, 3)
-        .map((pair: any) => pair.symbol);
-
-      const losers = sorted
-        .filter((pair: any) => parseFloat(pair.priceChangePercent) < 0)
-        .slice(0, 3)
-        .map((pair: any) => pair.symbol);
-
-      setSymbols({ gainers, losers });
-    } catch (error) {
-      console.error('Error fetching top movers:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Fetch top movers initially and every 5 minutes
-    fetchTopMovers();
-    const interval = setInterval(fetchTopMovers, 300000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const ws = new WebSocket("wss://stream.binance.com:9443/ws");
+  // Function to create WebSocket connection with reconnection logic
+  const createWebSocket = () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//stream.binance.com:443/ws`);
 
     ws.onopen = () => {
+      setWsError(null);
       const allSymbols = [...HOT_SYMBOLS, ...symbols.gainers, ...symbols.losers];
       const subscribeMsg = {
         method: "SUBSCRIBE",
@@ -122,10 +90,70 @@ export default function CryptoPriceTracker() {
       }
     };
 
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setWsError('Connection error occurred');
+    };
+
+    ws.onclose = () => {
+      setWsError('Connection closed');
+      // Attempt to reconnect after 5 seconds
+      setTimeout(() => createWebSocket(), 5000);
+    };
+
+    return ws;
+  };
+
+  // Function to fetch top movers with error handling
+  const fetchTopMovers = async () => {
+    try {
+      // Use proxy endpoint to avoid CORS issues
+      const response = await fetch('/api/binance/ticker24hr');
+      if (!response.ok) throw new Error('Failed to fetch data');
+
+      const data = await response.json();
+
+      // Filter for USDT pairs and sort by price change percentage
+      const usdtPairs = data.filter((pair: any) => pair.symbol.endsWith('USDT'));
+      const sorted = usdtPairs.sort((a: any, b: any) =>
+        Math.abs(parseFloat(b.priceChangePercent)) - Math.abs(parseFloat(a.priceChangePercent))
+      );
+
+      // Get top 3 gainers and losers
+      const gainers = sorted
+        .filter((pair: any) => parseFloat(pair.priceChangePercent) > 0)
+        .slice(0, 3)
+        .map((pair: any) => pair.symbol);
+
+      const losers = sorted
+        .filter((pair: any) => parseFloat(pair.priceChangePercent) < 0)
+        .slice(0, 3)
+        .map((pair: any) => pair.symbol);
+
+      setSymbols({ gainers, losers });
+    } catch (error) {
+      console.error('Error fetching top movers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch market data. Retrying...",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch of top movers
+    fetchTopMovers();
+    const interval = setInterval(fetchTopMovers, 300000);
+
+    // Setup WebSocket connection
+    const ws = createWebSocket();
+
     return () => {
+      clearInterval(interval);
       ws.close();
     };
-  }, [symbols]);
+  }, []);
 
   const handleViewMore = () => {
     toast({
@@ -194,6 +222,12 @@ export default function CryptoPriceTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      {wsError && (
+        <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md mb-4 text-sm">
+          {wsError}. Attempting to reconnect...
+        </div>
+      )}
+
       {/* Market insight widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <CryptoMood 
