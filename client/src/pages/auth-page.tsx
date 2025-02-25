@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { insertUserSchema } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLoginMutation, useRegisterMutation } from "@/services/auth";
+
 
 // Extend the user schema with password confirmation
 const authSchema = insertUserSchema.extend({
@@ -62,6 +64,8 @@ const listItemVariants = {
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const { toast } = useToast();
+  const [loginMutation, {isLoading:loginIsLoading}] = useLoginMutation();
+  const [registerMutation, {isLoading:registerIsLoading}] = useRegisterMutation();
 
   const form = useForm<AuthFormData>({
     resolver: zodResolver(authSchema),
@@ -75,20 +79,14 @@ export default function AuthPage() {
 
   const onSubmit = async (data: AuthFormData) => {
     try {
-      const endpoint = isLogin ? "/api/login" : "/api/register";
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Authentication failed");
+      if (isLogin) {
+        loginMutation.mutate({
+          username: data.username,
+          password: data.password,
+        });
+      } else {
+        registerMutation.mutate(data);
       }
-
-      const user = await response.json();
-      window.location.href = "/home";
     } catch (error) {
       toast({
         title: isLogin ? "Login failed" : "Registration failed",
@@ -195,7 +193,7 @@ export default function AuthPage() {
                     />
                   )}
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={loginIsLoading || registerIsLoading}>
                     {isLogin ? "Sign In" : "Create Account"}
                   </Button>
                 </form>

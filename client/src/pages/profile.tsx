@@ -2,8 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings, Bell, Shield, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const Profile = () => {
+  const { user, logoutMutation } = useAuth();
+  const initials = user?.username.slice(0, 2).toUpperCase() || "UN";
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
   return (
     <div className="min-h-screen pb-20">
       <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border">
@@ -17,12 +25,12 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="h-20 w-20">
-                <AvatarImage src="https://images.unsplash.com/photo-1713944183733-af06cf11e730" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-xl font-semibold">John Doe</h2>
-                <p className="text-sm text-muted-foreground">@johndoe</p>
+                <h2 className="text-xl font-semibold">{user?.username}</h2>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
             </div>
 
@@ -41,15 +49,16 @@ const Profile = () => {
 
         <div className="space-y-2">
           {[
-            { icon: Settings, label: "Settings" },
-            { icon: Bell, label: "Notifications" },
-            { icon: Shield, label: "Security" },
-            { icon: LogOut, label: "Logout" },
-          ].map(({ icon: Icon, label }) => (
+            { icon: Settings, label: "Settings", onClick: () => {} },
+            { icon: Bell, label: "Notifications", onClick: () => {} },
+            { icon: Shield, label: "Security", onClick: () => {} },
+            { icon: LogOut, label: "Logout", onClick: handleLogout },
+          ].map(({ icon: Icon, label, onClick }) => (
             <Button
               key={label}
               variant="ghost"
               className="w-full justify-start text-base h-12"
+              onClick={onClick}
             >
               <Icon className="mr-3 h-5 w-5" />
               {label}
