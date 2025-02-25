@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCarousel from "./airdrop-carousel";
 import CryptoMood from "./crypto-mood";
+import WhaleAlert from "./whale-alert";
 
 interface CryptoPrice {
   symbol: string;
@@ -133,12 +134,13 @@ export default function CryptoPriceTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Add CryptoMood component at the top */}
-      <div className="mb-6">
+      {/* Market sentiment widgets */}
+      <div className="space-y-6 mb-6">
         <CryptoMood 
           gainersCount={symbols.gainers.length}
           losersCount={symbols.losers.length}
         />
+        <WhaleAlert />
       </div>
 
       <Tabs defaultValue="hot" className="w-full">
