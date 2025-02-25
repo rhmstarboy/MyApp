@@ -44,23 +44,25 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             </Badge>
           )}
         </CardHeader>
-        <CardContent className="p-4 pt-0 space-y-4 flex-1">
-          <p className="text-sm text-muted-foreground line-clamp-2">{airdrop.description}</p>
+        <CardContent className="p-4 pt-0 flex-1 flex flex-col">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{airdrop.description}</p>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Total Value</p>
               <p className="text-sm font-medium truncate">{airdrop.totalValue}</p>
             </div>
-            <div>
+            <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Platform</p>
               <p className="text-sm font-medium truncate">{airdrop.platform}</p>
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Deadline: {format(new Date(airdrop.deadline), "MMM d, yyyy")}
-          </p>
+          <div className="mt-auto">
+            <p className="text-xs text-muted-foreground">
+              Deadline: {format(new Date(airdrop.deadline), "MMM d, yyyy")}
+            </p>
+          </div>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
