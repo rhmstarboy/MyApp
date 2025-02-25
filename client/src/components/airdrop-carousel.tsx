@@ -5,9 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CarouselProps {
   children: ReactNode;
+  onViewMore?: () => void;
 }
 
-const AirdropCarousel = ({ children }: CarouselProps) => {
+const AirdropCarousel = ({ children, onViewMore }: CarouselProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
@@ -24,7 +25,22 @@ const AirdropCarousel = ({ children }: CarouselProps) => {
   return (
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-4">{children}</div>
+        <div className="flex gap-4">
+          {children}
+          {onViewMore && (
+            <div className="flex-[0_0_300px] px-2">
+              <div className="h-[280px] w-[300px] card-gradient hover:bg-black/70 transition-colors border border-border/50 rounded-lg flex items-center justify-center">
+                <Button 
+                  variant="outline" 
+                  className="text-lg"
+                  onClick={onViewMore}
+                >
+                  View More
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <Button
         variant="outline"

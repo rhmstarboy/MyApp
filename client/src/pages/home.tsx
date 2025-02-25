@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import AirdropCard from "@/components/airdrop-card";
 import AirdropCarousel from "@/components/airdrop-carousel";
 import CryptoPriceTracker from "@/components/crypto-price-tracker";
@@ -12,6 +13,7 @@ import type { Airdrop } from "@shared/schema";
 
 const Home = () => {
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
 
   const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
     queryKey: ["/api/airdrops"],
@@ -24,6 +26,13 @@ const Home = () => {
   const featuredAirdrops = filteredAirdrops?.filter((a) => a.isFeatured);
   const confirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "confirmed");
   const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
+
+  const handleViewMore = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Full airdrop listing will be available in the next update!",
+    });
+  };
 
   return (
     <div className="min-h-screen pb-20 bg-background">
@@ -50,7 +59,6 @@ const Home = () => {
               <TabsTrigger value="unconfirmed" className="flex-1">Unconfirmed</TabsTrigger>
             </TabsList>
 
-            {/* Airdrop Tabs Content */}
             <div className="mt-6">
               {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -62,7 +70,7 @@ const Home = () => {
                 <>
                   <TabsContent value="featured">
                     {featuredAirdrops && featuredAirdrops.length > 0 && (
-                      <AirdropCarousel>
+                      <AirdropCarousel onViewMore={handleViewMore}>
                         {featuredAirdrops.map((airdrop) => (
                           <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />
@@ -74,7 +82,7 @@ const Home = () => {
 
                   <TabsContent value="confirmed">
                     {confirmedAirdrops && confirmedAirdrops.length > 0 && (
-                      <AirdropCarousel>
+                      <AirdropCarousel onViewMore={handleViewMore}>
                         {confirmedAirdrops.map((airdrop) => (
                           <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />
@@ -86,7 +94,7 @@ const Home = () => {
 
                   <TabsContent value="unconfirmed">
                     {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
-                      <AirdropCarousel>
+                      <AirdropCarousel onViewMore={handleViewMore}>
                         {unconfirmedAirdrops.map((airdrop) => (
                           <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />

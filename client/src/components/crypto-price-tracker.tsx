@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import AirdropCarousel from "./airdrop-carousel";
 
 interface CryptoPrice {
@@ -21,6 +22,7 @@ const HOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
   const [symbols, setSymbols] = useState<CryptoSymbols>({ gainers: [], losers: [] });
+  const { toast } = useToast();
 
   // Function to fetch top gainers and losers
   const fetchTopMovers = async () => {
@@ -90,8 +92,15 @@ export default function CryptoPriceTracker() {
     };
   }, [symbols]);
 
+  const handleViewMore = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Full market overview will be available in the next update!",
+    });
+  };
+
   const renderCryptoCards = (symbolList: string[]) => (
-    <AirdropCarousel>
+    <AirdropCarousel onViewMore={handleViewMore}>
       {symbolList.map((symbol) => {
         const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
         const isPositive = crypto.change >= 0;
