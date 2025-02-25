@@ -9,6 +9,15 @@ import Logo from "@/components/logo";
 import { sampleAirdrops } from "@/data/airdrops";
 import type { Airdrop } from "@shared/schema";
 
+// Import widgets
+import CryptoMood from "@/components/crypto-mood";
+import HotTrends from "@/components/hot-trends";
+import NetworkHealth from "@/components/network-health";
+import WhaleAlert from "@/components/whale-alert";
+import SocialSentiment from "@/components/social-sentiment";
+import FearAndGreed from "@/components/fear-and-greed";
+import GlobalTrading from "@/components/global-trading";
+
 const Home = () => {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
@@ -30,9 +39,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-20 bg-background">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-6xl mx-auto px-4">
         {/* Header Section */}
-        <div className="sticky top-0 bg-background/80 backdrop-blur-sm p-4 border-b border-border">
+        <div className="sticky top-0 bg-background/80 backdrop-blur-sm p-4 border-b border-border z-50">
           <div className="flex items-center justify-between mb-4">
             <Logo className="mr-4" />
             <div className="relative flex-1 max-w-md">
@@ -53,30 +62,64 @@ const Home = () => {
               <TabsTrigger value="unconfirmed" className="flex-1">Unconfirmed</TabsTrigger>
             </TabsList>
 
-            <div className="mt-6">
-              <TabsContent value="featured">
-                <div className="grid grid-cols-1 gap-4">
-                  {featuredAirdrops.map((airdrop) => (
-                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                  ))}
-                </div>
-              </TabsContent>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+              {/* Main Content */}
+              <div className="lg:col-span-8">
+                <TabsContent value="featured">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {featuredAirdrops.map((airdrop) => (
+                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
+                    ))}
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="confirmed">
-                <div className="grid grid-cols-1 gap-4">
-                  {confirmedAirdrops.map((airdrop) => (
-                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                  ))}
-                </div>
-              </TabsContent>
+                <TabsContent value="confirmed">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {confirmedAirdrops.map((airdrop) => (
+                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
+                    ))}
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="unconfirmed">
-                <div className="grid grid-cols-1 gap-4">
-                  {unconfirmedAirdrops.map((airdrop) => (
-                    <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                  ))}
-                </div>
-              </TabsContent>
+                <TabsContent value="unconfirmed">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {unconfirmedAirdrops.map((airdrop) => (
+                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
+                    ))}
+                  </div>
+                </TabsContent>
+              </div>
+
+              {/* Sidebar Widgets */}
+              <div className="lg:col-span-4 space-y-6">
+                <ErrorBoundary>
+                  <CryptoMood />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <HotTrends />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <NetworkHealth />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <WhaleAlert />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <SocialSentiment />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <FearAndGreed />
+                </ErrorBoundary>
+
+                <ErrorBoundary>
+                  <GlobalTrading />
+                </ErrorBoundary>
+              </div>
             </div>
           </Tabs>
         </div>
