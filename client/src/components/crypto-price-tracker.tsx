@@ -19,7 +19,7 @@ interface CryptoPrice {
   previousPrice?: number;
 }
 
-// Hot coins are static as they're the major cryptocurrencies
+// Major cryptocurrencies
 const HOT_SYMBOLS = ["BITCOIN", "ETHEREUM", "SOLANA"];
 
 const priceVariants = {
@@ -73,16 +73,11 @@ export default function CryptoPriceTracker() {
       } catch (error) {
         console.error('Error fetching market data:', error);
         setConnectionError('Failed to fetch market data');
-        toast({
-          title: "Error",
-          description: "Failed to fetch market data. Retrying...",
-          variant: "destructive",
-        });
       }
     };
 
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 30000); // Fallback polling every 30s
+    const pollInterval = setInterval(fetchMarketData, 30000); // Fallback polling every 30s
 
     // WebSocket setup
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -124,10 +119,10 @@ export default function CryptoPriceTracker() {
     };
 
     return () => {
-      clearInterval(interval);
+      clearInterval(pollInterval);
       ws.close();
     };
-  }, [toast]);
+  }, []);
 
   const handleViewMore = () => {
     toast({
