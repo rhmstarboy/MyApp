@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AirdropCarousel from "./airdrop-carousel";
 
 interface CryptoPrice {
@@ -9,18 +10,59 @@ interface CryptoPrice {
   change: number;
 }
 
+interface CryptoSymbols {
+  gainers: string[];
+  losers: string[];
+}
+
+// Hot coins are static as they're the major cryptocurrencies
 const HOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
-const GAINER_SYMBOLS = ["DOGEUSDT", "MATICUSDT", "AVAXUSDT"];
-const LOSER_SYMBOLS = ["XRPUSDT", "ADAUSDT", "DOTUSDT"];
 
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
+  const [symbols, setSymbols] = useState<CryptoSymbols>({ gainers: [], losers: [] });
+
+  // Function to fetch top gainers and losers
+  const fetchTopMovers = async () => {
+    try {
+      const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+      const data = await response.json();
+
+      // Filter for USDT pairs and sort by price change percentage
+      const usdtPairs = data.filter((pair: any) => pair.symbol.endsWith('USDT'));
+      const sorted = usdtPairs.sort((a: any, b: any) => 
+        Math.abs(parseFloat(b.priceChangePercent)) - Math.abs(parseFloat(a.priceChangePercent))
+      );
+
+      // Get top 3 gainers and losers
+      const gainers = sorted
+        .filter((pair: any) => parseFloat(pair.priceChangePercent) > 0)
+        .slice(0, 3)
+        .map((pair: any) => pair.symbol);
+
+      const losers = sorted
+        .filter((pair: any) => parseFloat(pair.priceChangePercent) < 0)
+        .slice(0, 3)
+        .map((pair: any) => pair.symbol);
+
+      setSymbols({ gainers, losers });
+    } catch (error) {
+      console.error('Error fetching top movers:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch top movers initially and every 5 minutes
+    fetchTopMovers();
+    const interval = setInterval(fetchTopMovers, 300000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket("wss://stream.binance.com:9443/ws");
 
     ws.onopen = () => {
-      const allSymbols = [...HOT_SYMBOLS, ...GAINER_SYMBOLS, ...LOSER_SYMBOLS];
+      const allSymbols = [...HOT_SYMBOLS, ...symbols.gainers, ...symbols.losers];
       const subscribeMsg = {
         method: "SUBSCRIBE",
         params: allSymbols.map(symbol => `${symbol.toLowerCase()}@ticker`),
@@ -46,46 +88,59 @@ export default function CryptoPriceTracker() {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [symbols]);
 
-  const renderCryptoSection = (title: string, symbols: string[]) => (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold mb-4">{title}</h2>
-      <AirdropCarousel>
-        {symbols.map((symbol) => {
-          const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
-          const isPositive = crypto.change >= 0;
+  const renderCryptoCards = (symbolList: string[]) => (
+    <AirdropCarousel>
+      {symbolList.map((symbol) => {
+        const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
+        const isPositive = crypto.change >= 0;
 
-          return (
-            <div key={symbol} className="flex-[0_0_300px] px-2">
-              <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-border/50">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-bold">{crypto.symbol}</span>
-                  {isPositive ? (
-                    <ArrowUp className="h-6 w-6 text-green-500" />
-                  ) : (
-                    <ArrowDown className="h-6 w-6 text-red-500" />
-                  )}
+        return (
+          <div key={symbol} className="flex-[0_0_300px] px-2">
+            <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-border/50">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xl font-bold">{crypto.symbol}</span>
+                {isPositive ? (
+                  <ArrowUp className="h-6 w-6 text-green-500" />
+                ) : (
+                  <ArrowDown className="h-6 w-6 text-red-500" />
+                )}
+              </div>
+              <div className="space-y-4">
+                <div className="text-3xl font-bold text-primary">${crypto.price}</div>
+                <div className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}>
+                  {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
                 </div>
-                <div className="space-y-4">
-                  <div className="text-3xl font-bold text-primary">${crypto.price}</div>
-                  <div className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}>
-                    {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
-                  </div>
-                </div>
-              </Card>
-            </div>
-          );
-        })}
-      </AirdropCarousel>
-    </div>
+              </div>
+            </Card>
+          </div>
+        );
+      })}
+    </AirdropCarousel>
   );
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {renderCryptoSection("Hot", HOT_SYMBOLS)}
-      {renderCryptoSection("Gainers", GAINER_SYMBOLS)}
-      {renderCryptoSection("Losers", LOSER_SYMBOLS)}
+      <Tabs defaultValue="hot" className="w-full">
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="hot" className="flex-1">Hot</TabsTrigger>
+          <TabsTrigger value="gainers" className="flex-1">Gainers</TabsTrigger>
+          <TabsTrigger value="losers" className="flex-1">Losers</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hot">
+          {renderCryptoCards(HOT_SYMBOLS)}
+        </TabsContent>
+
+        <TabsContent value="gainers">
+          {renderCryptoCards(symbols.gainers)}
+        </TabsContent>
+
+        <TabsContent value="losers">
+          {renderCryptoCards(symbols.losers)}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
