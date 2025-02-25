@@ -14,20 +14,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { insertUserSchema } from "@shared/schema";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/use-auth";
-import { VerificationInput } from "@/components/otp-input";
+import { motion } from "framer-motion";
+import { AvatarSelector } from "@/components/avatar-selector";
 
-// Extend the user schema with password confirmation
-const authSchema = insertUserSchema.extend({
-  passwordConfirm: z.string()
-}).refine((data) => data.password === data.passwordConfirm, {
-  message: "Passwords don't match",
-  path: ["passwordConfirm"],
+// Define the signup schema
+const signupSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  avatar: z.string().min(1, "Please select an avatar")
 });
 
-type AuthFormData = z.infer<typeof authSchema>;
+type SignupFormData = z.infer<typeof signupSchema>;
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -44,11 +42,6 @@ const formVariants = {
     opacity: 1, 
     x: 0,
     transition: { duration: 0.4 }
-  },
-  exit: {
-    opacity: 0,
-    x: 20,
-    transition: { duration: 0.3 }
   }
 };
 
@@ -62,93 +55,48 @@ const listItemVariants = {
 };
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showVerification, setShowVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [email, setEmail] = useState("");
   const { toast } = useToast();
-  const { loginMutation, registerMutation } = useAuth();
+  const [selectedAvatar, setSelectedAvatar] = useState("");
 
-  const form = useForm<AuthFormData>({
-    resolver: zodResolver(authSchema),
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
+      fullName: "",
       username: "",
-      email: "",
       password: "",
-      passwordConfirm: "",
+      avatar: ""
     },
   });
 
-  const onSubmit = async (data: AuthFormData) => {
+  const onSubmit = async (data: SignupFormData) => {
     try {
-      if (isLogin) {
-        loginMutation.mutate({
-          username: data.username,
-          password: data.password,
-        });
-      } else {
-        setEmail(data.email);
-        const response = await fetch("/api/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: data.username,
-            email: data.email,
-            password: data.password
-          }),
-        });
+      // Store user data in localStorage.  In a real application, this would be a server-side call.
+      const userData = {
+        ...data,
+        createdAt: new Date().toISOString()
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message);
-        }
+      toast({
+        title: "Welcome aboard!",
+        description: "Your account has been created successfully.",
+      });
 
-        toast({
-          title: "Verification Required",
-          description: "Please check your email for the verification code.",
-        });
-        setShowVerification(true);
-      }
+      // Redirect to home page
+      window.location.href = "/";
     } catch (error) {
       toast({
-        title: isLogin ? "Login failed" : "Registration failed",
+        title: "Registration failed",
         description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     }
   };
 
-  const handleVerification = async () => {
-    try {
-      const response = await fetch("/api/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token: verificationCode }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
-
-      const user = await response.json();
-      toast({
-        title: "Success",
-        description: "Your account has been verified successfully!",
-      });
-
-      // After verification, log the user in
-      loginMutation.mutate({
-        username: user.username,
-        password: form.getValues("password"),
-      });
-    } catch (error) {
-      toast({
-        title: "Verification failed",
-        description: error instanceof Error ? error.message : "Invalid verification code",
-        variant: "destructive",
-      });
-    }
+  // Update form when avatar is selected
+  const handleAvatarSelect = (avatar: string) => {
+    setSelectedAvatar(avatar);
+    form.setValue("avatar", avatar);
   };
 
   const features = [
@@ -158,8 +106,6 @@ export default function AuthPage() {
     "Personalized market alerts"
   ];
 
-  const isLoading = loginMutation.isPending || registerMutation.isPending;
-
   return (
     <motion.div 
       className="min-h-screen flex items-center justify-center bg-background"
@@ -168,135 +114,85 @@ export default function AuthPage() {
       animate="visible"
     >
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={isLogin ? "login" : (showVerification ? "verify" : "register")}
-            variants={formVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <Card className="p-6">
-              {showVerification ? (
-                <div>
-                  <h1 className="text-2xl font-bold mb-2">Verify Your Email</h1>
-                  <p className="text-muted-foreground mb-6">
-                    Enter the verification code sent to your email
-                  </p>
-                  <div className="space-y-6">
-                    <VerificationInput
-                      value={verificationCode}
-                      onChange={setVerificationCode}
-                      isDisabled={registerMutation.isPending}
-                    />
-                    <Button 
-                      className="w-full"
-                      onClick={handleVerification}
-                      disabled={verificationCode.length !== 6 || registerMutation.isPending}
-                    >
-                      Verify Account
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-8">
-                    <h1 className="text-2xl font-bold mb-2">
-                      {isLogin ? "Welcome Back" : "Create Account"}
-                    </h1>
-                    <p className="text-muted-foreground">
-                      {isLogin
-                        ? "Sign in to access your account"
-                        : "Join our community and start exploring"}
+        <motion.div
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Card className="p-6">
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold mb-2">
+                Create Your Account
+              </h1>
+              <p className="text-muted-foreground">
+                Join our community and start exploring
+              </p>
+            </div>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="mb-6">
+                  <h2 className="text-lg font-medium mb-4">Choose your avatar</h2>
+                  <AvatarSelector
+                    selectedAvatar={selectedAvatar}
+                    onSelect={handleAvatarSelect}
+                  />
+                  {form.formState.errors.avatar && (
+                    <p className="text-sm text-destructive mt-2">
+                      {form.formState.errors.avatar.message}
                     </p>
-                  </div>
+                  )}
+                </div>
 
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                      {!isLogin && (
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input type="email" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                      {!isLogin && (
-                        <FormField
-                          control={form.control}
-                          name="passwordConfirm"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Confirm Password</FormLabel>
-                              <FormControl>
-                                <Input type="password" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLogin ? "Sign In" : "Create Account"}
-                      </Button>
-                    </form>
-                  </Form>
-
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={() => {
-                        setIsLogin(!isLogin);
-                        setShowVerification(false);
-                      }}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {isLogin
-                        ? "Don't have an account? Sign up"
-                        : "Already have an account? Sign in"}
-                    </button>
-                  </div>
-                </>
-              )}
-            </Card>
-          </motion.div>
-        </AnimatePresence>
+                <Button type="submit" className="w-full">
+                  Create Account
+                </Button>
+              </form>
+            </Form>
+          </Card>
+        </motion.div>
 
         <motion.div 
           className="hidden md:flex flex-col justify-center"
