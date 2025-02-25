@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCarousel from "./airdrop-carousel";
 
@@ -32,7 +33,7 @@ export default function CryptoPriceTracker() {
 
       // Filter for USDT pairs and sort by price change percentage
       const usdtPairs = data.filter((pair: any) => pair.symbol.endsWith('USDT'));
-      const sorted = usdtPairs.sort((a: any, b: any) => 
+      const sorted = usdtPairs.sort((a: any, b: any) =>
         Math.abs(parseFloat(b.priceChangePercent)) - Math.abs(parseFloat(a.priceChangePercent))
       );
 

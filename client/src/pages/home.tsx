@@ -40,6 +40,7 @@ const Home = () => {
         {/* Header Section */}
         <div className="border-b border-border bg-background/80 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between mb-4">
+            <Logo className="mr-4" />
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -49,7 +50,6 @@ const Home = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Logo className="ml-4" />
           </div>
 
           <Tabs defaultValue="featured" className="w-full">
