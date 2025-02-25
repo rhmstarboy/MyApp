@@ -4,6 +4,7 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import AirdropCarousel from "./airdrop-carousel";
 import CryptoMood from "./crypto-mood";
 import WhaleAlert from "./whale-alert";
@@ -16,6 +17,7 @@ interface CryptoPrice {
   symbol: string;
   price: string;
   change: number;
+  previousPrice?: string;
 }
 
 interface CryptoSymbols {
@@ -25,6 +27,28 @@ interface CryptoSymbols {
 
 // Hot coins are static as they're the major cryptocurrencies
 const HOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
+
+const priceVariants = {
+  initial: { scale: 1 },
+  update: { 
+    scale: [1, 1.1, 1],
+    transition: { duration: 0.3 }
+  }
+};
+
+const changeVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.3 }
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    transition: { duration: 0.2 }
+  }
+};
 
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
@@ -83,14 +107,18 @@ export default function CryptoPriceTracker() {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.s && data.c && data.p) {
-        setPrices(prev => ({
-          ...prev,
-          [data.s]: {
-            symbol: data.s.replace("USDT", ""),
-            price: parseFloat(data.c).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-            change: parseFloat(data.p)
-          }
-        }));
+        setPrices(prev => {
+          const currentPrice = prev[data.s]?.price || "0.00";
+          return {
+            ...prev,
+            [data.s]: {
+              symbol: data.s.replace("USDT", ""),
+              price: parseFloat(data.c).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+              change: parseFloat(data.p),
+              previousPrice: currentPrice
+            }
+          };
+        });
       }
     };
 
@@ -111,23 +139,51 @@ export default function CryptoPriceTracker() {
       {symbolList.map((symbol) => {
         const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
         const isPositive = crypto.change >= 0;
+        const hasChanged = crypto.previousPrice !== crypto.price;
 
         return (
           <div key={symbol} className="flex-[0_0_300px] px-2">
             <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-primary/20">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xl font-bold">{crypto.symbol}</span>
-                {isPositive ? (
-                  <ArrowUp className="h-6 w-6 text-green-500" />
-                ) : (
-                  <ArrowDown className="h-6 w-6 text-red-500" />
-                )}
+                <motion.div
+                  animate={hasChanged ? "update" : "initial"}
+                  variants={{
+                    update: {
+                      scale: [1, 1.2, 1],
+                      transition: { duration: 0.3 }
+                    }
+                  }}
+                >
+                  {isPositive ? (
+                    <ArrowUp className="h-6 w-6 text-green-500" />
+                  ) : (
+                    <ArrowDown className="h-6 w-6 text-red-500" />
+                  )}
+                </motion.div>
               </div>
               <div className="space-y-4">
-                <div className="text-3xl font-bold text-primary">${crypto.price}</div>
-                <div className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}>
-                  {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
-                </div>
+                <motion.div
+                  key={crypto.price}
+                  variants={priceVariants}
+                  initial="initial"
+                  animate={hasChanged ? "update" : "initial"}
+                  className="text-3xl font-bold text-primary"
+                >
+                  ${crypto.price}
+                </motion.div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={crypto.change}
+                    variants={changeVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}
+                  >
+                    {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </Card>
           </div>
