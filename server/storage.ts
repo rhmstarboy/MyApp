@@ -1,96 +1,113 @@
 import { type Airdrop, type InsertAirdrop, type ClaimedAirdrop, type InsertClaimedAirdrop } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import { 
+  type User, type InsertUser,
+  type Comment, type InsertComment,
+  type CommentLike, type InsertCommentLike,
+  users, comments, commentLikes
+} from "@shared/schema";
 
 export interface IStorage {
-  // Airdrop methods
+  // User methods
+  createUser(user: InsertUser): Promise<User>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+
+  // Comment methods
+  createComment(comment: InsertComment): Promise<Comment>;
+  getComment(id: number): Promise<Comment | undefined>;
+  getComments(parentId?: number): Promise<Comment[]>;
+  likeComment(like: InsertCommentLike): Promise<CommentLike>;
+  unlikeComment(userId: number, commentId: number): Promise<void>;
+
+  // Keep existing methods
   getAirdrops(): Promise<Airdrop[]>;
   getAirdrop(id: number): Promise<Airdrop | undefined>;
   createAirdrop(airdrop: InsertAirdrop): Promise<Airdrop>;
-
-  // Claimed airdrop methods
   getClaimedAirdrops(): Promise<ClaimedAirdrop[]>;
   createClaimedAirdrop(claimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop>;
 }
 
-export class MemStorage implements IStorage {
-  private airdrops: Map<number, Airdrop>;
-  private claimedAirdrops: Map<number, ClaimedAirdrop>;
-  private currentAirdropId: number;
-  private currentClaimedId: number;
-
-  constructor() {
-    this.airdrops = new Map();
-    this.claimedAirdrops = new Map();
-    this.currentAirdropId = 1;
-    this.currentClaimedId = 1;
-
-    // Add some sample airdrops
-    this.createAirdrop({
-      name: "Ethereal Protocol",
-      logo: "https://images.unsplash.com/photo-1641317139750-4a25ddc7e304",
-      description: "Join Ethereal's Season Zero campaign and earn rewards by depositing USDe tokens",
-      deadline: new Date("2025-05-29"),
-      reward: "Ethereal Points + 50x Ethena sats",
-      platform: "eth",
-      totalValue: "n/a",
-      isFeatured: true,
-      joinLink: "https://app.ethereal.finance",
-      status: "confirmed",
-      steps: [
-        "Acquire USDe Tokens from Binance",
-        "Visit the Ethereal Platform and connect your wallet",
-        "Make your deposit in USDe",
-        "Confirm the transaction to receive eUSDe tokens",
-        "Generate and share your referral link",
-        "Optional: Deposit into eUSDe Pendle pool for 1.6x points"
-      ]
-    });
-
-    this.createAirdrop({
-      name: "CryptoKitties NFT",
-      logo: "https://images.unsplash.com/photo-1639815189096-f75717eaecfe",
-      description: "Claim your exclusive CryptoKitties NFT",
-      deadline: new Date("2025-04-01"),
-      reward: "1 NFT",
-      platform: "eth",
-      totalValue: "$100",
-      isFeatured: true,
-      joinLink: "https://www.cryptokitties.co",
-      status: "unconfirmed",
-      steps: [
-        "Connect your Web3 wallet",
-        "Complete social media tasks",
-        "Join Discord community",
-        "Verify wallet ownership",
-        "Claim your NFT"
-      ]
-    });
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
   }
 
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  // Comment methods
+  async createComment(insertComment: InsertComment): Promise<Comment> {
+    const [comment] = await db.insert(comments).values(insertComment).returning();
+    return comment;
+  }
+
+  async getComment(id: number): Promise<Comment | undefined> {
+    const [comment] = await db.select().from(comments).where(eq(comments.id, id));
+    return comment;
+  }
+
+  async getComments(parentId?: number): Promise<Comment[]> {
+    return db.select()
+      .from(comments)
+      .where(parentId ? eq(comments.parentId, parentId) : eq(comments.parentId, null))
+      .orderBy(comments.createdAt);
+  }
+
+  async likeComment(insertLike: InsertCommentLike): Promise<CommentLike> {
+    const [like] = await db.insert(commentLikes).values(insertLike).returning();
+    await db
+      .update(comments)
+      .set({ likes: comments.likes + 1 })
+      .where(eq(comments.id, insertLike.commentId));
+    return like;
+  }
+
+  async unlikeComment(userId: number, commentId: number): Promise<void> {
+    await db
+      .delete(commentLikes)
+      .where(
+        eq(commentLikes.userId, userId) && 
+        eq(commentLikes.commentId, commentId)
+      );
+    await db
+      .update(comments)
+      .set({ likes: comments.likes - 1 })
+      .where(eq(comments.id, commentId));
+  }
+
+  // Keep existing methods
   async getAirdrops(): Promise<Airdrop[]> {
-    return Array.from(this.airdrops.values());
+    throw new Error("Method not implemented.");
   }
-
   async getAirdrop(id: number): Promise<Airdrop | undefined> {
-    return this.airdrops.get(id);
+    throw new Error("Method not implemented.");
   }
-
-  async createAirdrop(insertAirdrop: InsertAirdrop): Promise<Airdrop> {
-    const id = this.currentAirdropId++;
-    const airdrop: Airdrop = { ...insertAirdrop, id };
-    this.airdrops.set(id, airdrop);
-    return airdrop;
+  async createAirdrop(airdrop: InsertAirdrop): Promise<Airdrop> {
+    throw new Error("Method not implemented.");
   }
-
   async getClaimedAirdrops(): Promise<ClaimedAirdrop[]> {
-    return Array.from(this.claimedAirdrops.values());
+    throw new Error("Method not implemented.");
   }
-
-  async createClaimedAirdrop(insertClaimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop> {
-    const id = this.currentClaimedId++;
-    const claimed: ClaimedAirdrop = { ...insertClaimed, id };
-    this.claimedAirdrops.set(id, claimed);
-    return claimed;
+  async createClaimedAirdrop(claimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop> {
+    throw new Error("Method not implemented.");
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

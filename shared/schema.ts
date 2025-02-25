@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -24,10 +24,47 @@ export const claimedAirdrops = pgTable("claimed_airdrops", {
   claimedAt: timestamp("claimed_at").defaultNow(),
 });
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  avatar: text("avatar"),
+  bio: text("bio"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  parentId: integer("parent_id").references(() => comments.id),
+  likes: integer("likes").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const commentLikes = pgTable("comment_likes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  commentId: integer("comment_id").references(() => comments.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertAirdropSchema = createInsertSchema(airdrops).omit({ id: true });
 export const insertClaimedAirdropSchema = createInsertSchema(claimedAirdrops).omit({ id: true });
+
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true, likes: true });
+export const insertCommentLikeSchema = createInsertSchema(commentLikes).omit({ id: true, createdAt: true });
 
 export type Airdrop = typeof airdrops.$inferSelect;
 export type InsertAirdrop = z.infer<typeof insertAirdropSchema>;
 export type ClaimedAirdrop = typeof claimedAirdrops.$inferSelect;
 export type InsertClaimedAirdrop = z.infer<typeof insertClaimedAirdropSchema>;
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Comment = typeof comments.$inferSelect;
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type CommentLike = typeof commentLikes.$inferSelect;
+export type InsertCommentLike = z.infer<typeof insertCommentLikeSchema>;
