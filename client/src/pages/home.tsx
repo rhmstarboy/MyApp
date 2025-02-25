@@ -25,6 +25,32 @@ const Home = () => {
 
   const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
     queryKey: ["/api/airdrops"],
+    queryFn: () => {
+      // Static airdrop data for testing
+      return [
+        {
+          id: 1,
+          name: "Ethereal Season Zero",
+          description: "Participate in Ethereal's Season Zero campaign to earn rewards and points by depositing USDe tokens. Earn additional rewards through referrals and optional boosting opportunities.",
+          logo: "", // Will be filled with logo URL
+          reward: "Points & Rewards",
+          totalValue: "$500",
+          platform: "Ethereum",
+          status: "confirmed",
+          isFeatured: false,
+          joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
+          deadline: "2025-05-29",
+          steps: [
+            "Acquire USDe Tokens from Binance",
+            "Visit Ethereal Platform and connect Web3 wallet",
+            "Make USDe deposit on the deposit page",
+            "Confirm transaction to receive eUSDe tokens",
+            "Generate and share referral link for 10% rewards",
+            "Optional: Deposit in eUSDe Pendle pool for 1.6x points"
+          ]
+        }
+      ];
+    }
   });
 
   const filteredAirdrops = airdrops?.filter((airdrop) =>
