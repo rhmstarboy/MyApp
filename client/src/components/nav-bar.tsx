@@ -1,13 +1,13 @@
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, Gift, Video, User } from "lucide-react";
+import { Home, MessageSquare, Video, User } from "lucide-react";
 
 const NavBar = () => {
   const [location] = useLocation();
 
   const items = [
     { path: "/home", icon: Home, label: "Latest" },
-    { path: "/claimed", icon: Gift, label: "Claimed" },
+    { path: "/comments", icon: MessageSquare, label: "Comments" },
     { path: "/tutorials", icon: Video, label: "Tutorials" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
