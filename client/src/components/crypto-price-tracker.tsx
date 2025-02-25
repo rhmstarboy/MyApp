@@ -8,25 +8,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import AirdropCarousel from "./airdrop-carousel";
 import CryptoMood from "./crypto-mood";
 import WhaleAlert from "./whale-alert";
-import HotTrends from "./hot-trends";
 import NetworkHealth from "./network-health";
 import GlobalTrading from "./global-trading";
 import SocialSentiment from "./social-sentiment";
 
 interface CryptoPrice {
   symbol: string;
-  price: string;
+  price: number;
   change: number;
-  previousPrice?: string;
-}
-
-interface CryptoSymbols {
-  gainers: string[];
-  losers: string[];
+  previousPrice?: number;
 }
 
 // Hot coins are static as they're the major cryptocurrencies
-const HOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
+const HOT_SYMBOLS = ["BITCOIN", "ETHEREUM", "SOLANA"];
 
 const priceVariants = {
   initial: { scale: 1 },
@@ -52,108 +46,88 @@ const changeVariants = {
 
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
-  const [symbols, setSymbols] = useState<CryptoSymbols>({ gainers: [], losers: [] });
-  const [wsError, setWsError] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Function to create WebSocket connection with reconnection logic
-  const createWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//stream.binance.com:443/ws`);
+  useEffect(() => {
+    // Initial market data fetch
+    const fetchMarketData = async () => {
+      try {
+        const response = await fetch('/api/market/ticker');
+        if (!response.ok) throw new Error('Failed to fetch market data');
 
-    ws.onopen = () => {
-      setWsError(null);
-      const allSymbols = [...HOT_SYMBOLS, ...symbols.gainers, ...symbols.losers];
-      const subscribeMsg = {
-        method: "SUBSCRIBE",
-        params: allSymbols.map(symbol => `${symbol.toLowerCase()}@ticker`),
-        id: 1
-      };
-      ws.send(JSON.stringify(subscribeMsg));
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.s && data.c && data.p) {
+        const data = await response.json();
         setPrices(prev => {
-          const currentPrice = prev[data.s]?.price || "0.00";
-          return {
-            ...prev,
-            [data.s]: {
-              symbol: data.s.replace("USDT", ""),
-              price: parseFloat(data.c).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-              change: parseFloat(data.p),
-              previousPrice: currentPrice
-            }
-          };
+          const newPrices: Record<string, CryptoPrice> = {};
+          data.forEach((item: any) => {
+            newPrices[item.symbol] = {
+              symbol: item.symbol,
+              price: item.price,
+              change: item.change,
+              previousPrice: prev[item.symbol]?.price
+            };
+          });
+          return newPrices;
+        });
+        setConnectionError(null);
+      } catch (error) {
+        console.error('Error fetching market data:', error);
+        setConnectionError('Failed to fetch market data');
+        toast({
+          title: "Error",
+          description: "Failed to fetch market data. Retrying...",
+          variant: "destructive",
         });
       }
     };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setWsError('Connection error occurred');
+    fetchMarketData();
+    const interval = setInterval(fetchMarketData, 30000); // Fallback polling every 30s
+
+    // WebSocket setup
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+      setConnectionError(null);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'market_update') {
+          setPrices(prev => {
+            const newPrices: Record<string, CryptoPrice> = {};
+            message.data.forEach((item: any) => {
+              newPrices[item.symbol] = {
+                symbol: item.symbol,
+                price: item.price,
+                change: item.change,
+                previousPrice: prev[item.symbol]?.price
+              };
+            });
+            return newPrices;
+          });
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    };
+
+    ws.onerror = () => {
+      setConnectionError('WebSocket connection error');
     };
 
     ws.onclose = () => {
-      setWsError('Connection closed');
-      // Attempt to reconnect after 5 seconds
-      setTimeout(() => createWebSocket(), 5000);
+      setConnectionError('WebSocket connection closed');
     };
-
-    return ws;
-  };
-
-  // Function to fetch top movers with error handling
-  const fetchTopMovers = async () => {
-    try {
-      // Use proxy endpoint to avoid CORS issues
-      const response = await fetch('/api/binance/ticker24hr');
-      if (!response.ok) throw new Error('Failed to fetch data');
-
-      const data = await response.json();
-
-      // Filter for USDT pairs and sort by price change percentage
-      const usdtPairs = data.filter((pair: any) => pair.symbol.endsWith('USDT'));
-      const sorted = usdtPairs.sort((a: any, b: any) =>
-        Math.abs(parseFloat(b.priceChangePercent)) - Math.abs(parseFloat(a.priceChangePercent))
-      );
-
-      // Get top 3 gainers and losers
-      const gainers = sorted
-        .filter((pair: any) => parseFloat(pair.priceChangePercent) > 0)
-        .slice(0, 3)
-        .map((pair: any) => pair.symbol);
-
-      const losers = sorted
-        .filter((pair: any) => parseFloat(pair.priceChangePercent) < 0)
-        .slice(0, 3)
-        .map((pair: any) => pair.symbol);
-
-      setSymbols({ gainers, losers });
-    } catch (error) {
-      console.error('Error fetching top movers:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch market data. Retrying...",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    // Initial fetch of top movers
-    fetchTopMovers();
-    const interval = setInterval(fetchTopMovers, 300000);
-
-    // Setup WebSocket connection
-    const ws = createWebSocket();
 
     return () => {
       clearInterval(interval);
       ws.close();
     };
-  }, []);
+  }, [toast]);
 
   const handleViewMore = () => {
     toast({
@@ -162,102 +136,91 @@ export default function CryptoPriceTracker() {
     });
   };
 
-  const renderCryptoCards = (symbolList: string[]) => (
-    <AirdropCarousel onViewMore={handleViewMore} viewMoreCardHeight="h-[200px]">
-      {symbolList.map((symbol) => {
-        const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
-        const isPositive = crypto.change >= 0;
-        const hasChanged = crypto.previousPrice !== crypto.price;
+  const renderCryptoCard = (symbol: string) => {
+    const crypto = prices[symbol];
+    if (!crypto) return null;
 
-        return (
-          <div key={symbol} className="flex-[0_0_300px] px-2">
-            <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-primary/20">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xl font-bold">{crypto.symbol}</span>
-                <motion.div
-                  animate={hasChanged ? "update" : "initial"}
-                  variants={{
-                    update: {
-                      scale: [1, 1.2, 1],
-                      transition: { duration: 0.3 }
-                    }
-                  }}
-                >
-                  {isPositive ? (
-                    <ArrowUp className="h-6 w-6 text-green-500" />
-                  ) : (
-                    <ArrowDown className="h-6 w-6 text-red-500" />
-                  )}
-                </motion.div>
-              </div>
-              <div className="space-y-4">
-                <motion.div
-                  key={crypto.price}
-                  variants={priceVariants}
-                  initial="initial"
-                  animate={hasChanged ? "update" : "initial"}
-                  className="text-3xl font-bold text-primary"
-                >
-                  ${crypto.price}
-                </motion.div>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={crypto.change}
-                    variants={changeVariants}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}
-                  >
-                    {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </Card>
+    const isPositive = crypto.change >= 0;
+    const hasChanged = crypto.previousPrice !== crypto.price;
+
+    return (
+      <div key={symbol} className="flex-[0_0_300px] px-2">
+        <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-primary/20">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xl font-bold">{symbol}</span>
+            <motion.div
+              animate={hasChanged ? "update" : "initial"}
+              variants={{
+                update: {
+                  scale: [1, 1.2, 1],
+                  transition: { duration: 0.3 }
+                }
+              }}
+            >
+              {isPositive ? (
+                <ArrowUp className="h-6 w-6 text-green-500" />
+              ) : (
+                <ArrowDown className="h-6 w-6 text-red-500" />
+              )}
+            </motion.div>
           </div>
-        );
-      })}
-    </AirdropCarousel>
-  );
+          <div className="space-y-4">
+            <motion.div
+              key={crypto.price}
+              variants={priceVariants}
+              initial="initial"
+              animate={hasChanged ? "update" : "initial"}
+              className="text-3xl font-bold text-primary"
+            >
+              ${crypto.price.toLocaleString(undefined, { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={crypto.change}
+                variants={changeVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}
+              >
+                {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {wsError && (
+      {connectionError && (
         <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md mb-4 text-sm">
-          {wsError}. Attempting to reconnect...
+          {connectionError}. Attempting to reconnect...
         </div>
       )}
 
       {/* Market insight widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <CryptoMood 
-          gainersCount={symbols.gainers.length}
-          losersCount={symbols.losers.length}
-        />
+        <CryptoMood data={prices} />
         <WhaleAlert />
-        <HotTrends />
         <NetworkHealth />
-        <SocialSentiment />
         <GlobalTrading />
+        <SocialSentiment />
       </div>
 
       <Tabs defaultValue="hot" className="w-full">
         <TabsList className="w-full mb-6 bg-primary/20">
           <TabsTrigger value="hot" className="flex-1">Hot</TabsTrigger>
-          <TabsTrigger value="gainers" className="flex-1">Gainers</TabsTrigger>
-          <TabsTrigger value="losers" className="flex-1">Losers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hot">
-          {renderCryptoCards(HOT_SYMBOLS)}
-        </TabsContent>
-
-        <TabsContent value="gainers">
-          {renderCryptoCards(symbols.gainers)}
-        </TabsContent>
-
-        <TabsContent value="losers">
-          {renderCryptoCards(symbols.losers)}
+          <AirdropCarousel onViewMore={handleViewMore}>
+            {HOT_SYMBOLS.map(symbol => renderCryptoCard(symbol))}
+          </AirdropCarousel>
         </TabsContent>
       </Tabs>
     </div>
