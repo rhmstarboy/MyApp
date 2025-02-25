@@ -29,7 +29,6 @@ const Home = () => {
       <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border z-10">
         <div className="max-w-4xl mx-auto p-4">
           <div className="flex items-center justify-between mb-4">
-            <Logo className="mr-4" />
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -39,6 +38,7 @@ const Home = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+            <Logo className="ml-4" />
           </div>
 
           <Tabs defaultValue="featured" className="w-full">
