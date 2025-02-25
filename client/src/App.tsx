@@ -13,9 +13,6 @@ import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
 
 function Router() {
-  // Check if user is logged in
-  const isLoggedIn = !!localStorage.getItem('userData');
-
   return (
     <Switch>
       {/* Auth page is the primary route */}

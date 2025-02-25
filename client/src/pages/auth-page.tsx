@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { AvatarSelector } from "@/components/avatar-selector";
+import { useLocation } from "wouter";
 
 // Define the signup schema
 const signupSchema = z.object({
@@ -57,14 +58,15 @@ const listItemVariants = {
 export default function AuthPage() {
   const { toast } = useToast();
   const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [, setLocation] = useLocation();
 
   // Check if user is already logged in
   useEffect(() => {
     const userData = localStorage.getItem('userData');
     if (userData) {
-      window.location.href = "/home";
+      setLocation("/home");
     }
-  }, []);
+  }, [setLocation]);
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -99,8 +101,8 @@ export default function AuthPage() {
         description: "Your account has been created successfully.",
       });
 
-      // Redirect to home page after successful signup
-      window.location.href = "/home";
+      // Navigate to home page after successful signup
+      setLocation("/home");
     } catch (error) {
       toast({
         title: "Registration failed",

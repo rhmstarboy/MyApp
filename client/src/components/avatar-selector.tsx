@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bitcoin, Ethereum, Wallet, Coins, Gem, Crown, Diamond, Star } from "lucide-react";
+import { Bitcoin, Wallet, Coins, Gem, Crown, Diamond, Star, Award } from "lucide-react";
 
 const avatars = [
   { icon: Bitcoin, label: "Bitcoin" },
-  { icon: Ethereum, label: "Ethereum" },
   { icon: Wallet, label: "Wallet" },
   { icon: Coins, label: "Coins" },
   { icon: Gem, label: "Gem" },
   { icon: Crown, label: "Crown" },
   { icon: Diamond, label: "Diamond" },
   { icon: Star, label: "Star" },
+  { icon: Award, label: "Award" }
 ];
 
 interface AvatarSelectorProps {
