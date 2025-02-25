@@ -28,9 +28,9 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors">
-        <CardHeader className="flex flex-row items-center gap-4 p-4">
-          <Avatar className="h-12 w-12">
+      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors flex flex-col">
+        <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
+          <Avatar className="h-12 w-12 shrink-0">
             <AvatarImage src={airdrop.logo} alt={airdrop.name} />
             <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
           </Avatar>
@@ -44,7 +44,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             </Badge>
           )}
         </CardHeader>
-        <CardContent className="p-4 pt-0 space-y-4">
+        <CardContent className="p-4 pt-0 space-y-4 flex-1">
           <p className="text-sm text-muted-foreground line-clamp-2">{airdrop.description}</p>
 
           <div className="grid grid-cols-2 gap-4">
@@ -62,7 +62,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             Deadline: {format(new Date(airdrop.deadline), "MMM d, yyyy")}
           </p>
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex gap-2 mt-auto">
+        <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex-1">
