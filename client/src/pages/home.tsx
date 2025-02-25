@@ -26,7 +26,7 @@ const Home = () => {
   const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
 
   return (
-    <div className="min-h-screen pb-[calc(200px+80px)]"> {/* Add space for crypto tracker and navbar */}
+    <div className="min-h-screen pb-[calc(200px+80px+100px)]"> {/* Add extra space for AdMob */}
       <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border z-10">
         <div className="max-w-4xl mx-auto p-4">
           <div className="flex items-center justify-between mb-4">
@@ -97,6 +97,13 @@ const Home = () => {
               )}
             </div>
           </Tabs>
+        </div>
+      </div>
+
+      {/* Space for AdMob */}
+      <div className="fixed bottom-[280px] left-0 right-0 h-[100px] flex items-center justify-center">
+        <div className="bg-black/20 w-full max-w-[320px] h-[50px] rounded-lg flex items-center justify-center text-muted-foreground text-sm">
+          Ad Space
         </div>
       </div>
 
