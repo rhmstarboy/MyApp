@@ -46,7 +46,7 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="h-20 w-20">
-                <AvatarFallback className="text-4xl flex items-center justify-center">
+                <AvatarFallback className="text-xl flex items-center justify-center">
                   {user?.avatar ? avatarEmojis[user.avatar] : initials}
                 </AvatarFallback>
               </Avatar>
