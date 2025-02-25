@@ -9,7 +9,7 @@ export const sampleAirdrops: Airdrop[] = [
     totalValue: "$1000",
     logo: "https://cryptologos.cc/logos/jupiter-jup-logo.png",
     platform: "Solana",
-    deadline: "2025-04-01",
+    deadline: new Date("2025-04-01"),
     joinLink: "https://jupiter.io",
     isFeatured: true,
     steps: [
@@ -27,7 +27,7 @@ export const sampleAirdrops: Airdrop[] = [
     totalValue: "$2000",
     logo: "https://cryptologos.cc/logos/layerzero-logo.png",
     platform: "Multi-chain",
-    deadline: "2025-03-15",
+    deadline: new Date("2025-03-15"),
     joinLink: "https://layerzero.network",
     isFeatured: true,
     steps: [
@@ -45,7 +45,7 @@ export const sampleAirdrops: Airdrop[] = [
     totalValue: "$750",
     logo: "https://cryptologos.cc/logos/celestia-logo.png",
     platform: "Celestia",
-    deadline: "2025-03-30",
+    deadline: new Date("2025-03-30"),
     joinLink: "https://celestia.org",
     isFeatured: false,
     steps: [

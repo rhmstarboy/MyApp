@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCard from "@/components/airdrop-card";
@@ -29,18 +28,11 @@ const Home = () => {
   const confirmedAirdrops = filteredAirdrops;
   const unconfirmedAirdrops = filteredAirdrops;
 
-  const handleViewMore = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Full airdrop listing will be available in the next update!",
-    });
-  };
-
   return (
     <div className="min-h-screen pb-20 bg-background">
       <div className="max-w-md mx-auto">
         {/* Header Section */}
-        <div className="border-b border-border bg-background/80 backdrop-blur-sm p-4">
+        <div className="sticky top-0 bg-background/80 backdrop-blur-sm p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
             <Logo className="mr-4" />
             <div className="relative flex-1 max-w-md">
@@ -96,13 +88,6 @@ const Home = () => {
               Ad Space
             </div>
           </div>
-
-          {/* Crypto Price Tracker wrapped in ErrorBoundary */}
-          <ErrorBoundary>
-            <div>
-              <CryptoPriceTracker />
-            </div>
-          </ErrorBoundary>
         </div>
       </div>
     </div>
