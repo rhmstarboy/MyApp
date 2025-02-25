@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY?.trim(),
 });
 
 export interface ModerationResult {
@@ -11,6 +11,16 @@ export interface ModerationResult {
 
 export async function moderateContent(content: string): Promise<ModerationResult> {
   try {
+    // Validate API key format
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey?.startsWith('sk-')) {
+      console.error('Invalid OpenAI API key format');
+      return { 
+        status: 'flagged', 
+        flags: ['invalid_api_key'] 
+      };
+    }
+
     const response = await openai.moderations.create({ input: content });
     const result = response.results[0];
 
@@ -32,8 +42,15 @@ export async function moderateContent(content: string): Promise<ModerationResult
 
     return { status, flags };
   } catch (error) {
-    console.error('Moderation API error:', error);
-    // If the API fails, we'll flag the content for manual review
+    // Log detailed error information
+    console.error('OpenAI Moderation API error:', {
+      error: error instanceof Error ? error.message : String(error),
+      status: error?.status,
+      type: error?.type,
+      code: error?.code
+    });
+
+    // For API errors, flag for manual review
     return { 
       status: 'flagged', 
       flags: ['api_error'] 

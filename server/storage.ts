@@ -96,7 +96,7 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(commentLikes)
       .where(
-        eq(commentLikes.userId, userId) && 
+        eq(commentLikes.userId, userId) &&
         eq(commentLikes.commentId, commentId)
       );
     await db
@@ -106,17 +106,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async moderateComment(commentId: number, content: string): Promise<void> {
-    const result = await moderateContent(content);
-    await this.updateCommentModeration(commentId, result.status, result.flags);
+    try {
+      console.log(`Starting moderation for comment ${commentId}`);
+      const result = await moderateContent(content);
+      console.log(`Moderation result for comment ${commentId}:`, result);
+      await this.updateCommentModeration(commentId, result.status, result.flags);
+    } catch (error) {
+      console.error(`Error moderating comment ${commentId}:`, error);
+      // If moderation fails, mark as flagged for manual review
+      await this.updateCommentModeration(commentId, 'flagged', ['moderation_error']);
+    }
   }
 
   async updateCommentModeration(commentId: number, status: string, flags: string[]): Promise<void> {
-    await db.update(comments)
-      .set({ 
-        moderationStatus: status,
-        moderationFlags: flags
-      })
-      .where(eq(comments.id, commentId));
+    try {
+      await db.update(comments)
+        .set({ 
+          moderationStatus: status,
+          moderationFlags: flags
+        })
+        .where(eq(comments.id, commentId));
+      console.log(`Updated moderation status for comment ${commentId} to ${status}`);
+    } catch (error) {
+      console.error(`Error updating moderation status for comment ${commentId}:`, error);
+      throw error;
+    }
   }
 
   // Keep existing methods
