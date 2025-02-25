@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import AirdropCarousel from "./airdrop-carousel";
 
 interface CryptoPrice {
   symbol: string;
@@ -17,7 +18,6 @@ export default function CryptoPriceTracker() {
     const ws = new WebSocket("wss://stream.binance.com:9443/ws");
 
     ws.onopen = () => {
-      // Subscribe to ticker streams for all symbols
       const subscribeMsg = {
         method: "SUBSCRIBE",
         params: SYMBOLS.map(symbol => `${symbol.toLowerCase()}@ticker`),
@@ -48,31 +48,33 @@ export default function CryptoPriceTracker() {
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <h2 className="text-lg font-semibold mb-4">Live Crypto Prices</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <AirdropCarousel>
         {SYMBOLS.map((symbol) => {
           const crypto = prices[symbol] || { symbol: symbol.replace("USDT", ""), price: "0.00", change: 0 };
           const isPositive = crypto.change >= 0;
 
           return (
-            <Card key={symbol} className="p-4 card-gradient">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">{crypto.symbol}</span>
-                {isPositive ? (
-                  <ArrowUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <ArrowDown className="h-4 w-4 text-red-500" />
-                )}
-              </div>
-              <div className="mt-2">
-                <div className="text-lg font-bold">${crypto.price}</div>
-                <div className={`text-sm ${isPositive ? "text-green-500" : "text-red-500"}`}>
-                  {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
+            <div key={symbol} className="flex-[0_0_300px] px-2">
+              <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-border/50">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xl font-bold">{crypto.symbol}</span>
+                  {isPositive ? (
+                    <ArrowUp className="h-6 w-6 text-green-500" />
+                  ) : (
+                    <ArrowDown className="h-6 w-6 text-red-500" />
+                  )}
                 </div>
-              </div>
-            </Card>
+                <div className="space-y-4">
+                  <div className="text-3xl font-bold text-primary">${crypto.price}</div>
+                  <div className={`text-lg ${isPositive ? "text-green-500" : "text-red-500"}`}>
+                    {isPositive ? "+" : ""}{crypto.change.toFixed(2)}%
+                  </div>
+                </div>
+              </Card>
+            </div>
           );
         })}
-      </div>
+      </AirdropCarousel>
     </div>
   );
 }
