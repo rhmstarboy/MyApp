@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import AirdropCarousel from "./airdrop-carousel";
@@ -47,7 +46,60 @@ const changeVariants = {
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
   const { toast } = useToast();
+
+  // Function to create WebSocket connection
+  const createWebSocket = () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const newWs = new WebSocket(wsUrl);
+
+    newWs.onopen = () => {
+      console.log('WebSocket connected');
+      setConnectionError(null);
+    };
+
+    newWs.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'market_update') {
+          setPrices(prev => {
+            const newPrices: Record<string, CryptoPrice> = {};
+            message.data.forEach((item: any) => {
+              newPrices[item.symbol] = {
+                symbol: item.symbol,
+                price: item.price,
+                change: item.change,
+                previousPrice: prev[item.symbol]?.price
+              };
+            });
+            return newPrices;
+          });
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    };
+
+    newWs.onerror = () => {
+      setConnectionError('WebSocket connection error');
+      newWs.close();
+    };
+
+    newWs.onclose = () => {
+      setConnectionError('WebSocket connection closed');
+      // Attempt to reconnect after 2 seconds
+      setTimeout(() => {
+        if (newWs.readyState === WebSocket.CLOSED) {
+          console.log('Attempting to reconnect...');
+          setWs(createWebSocket());
+        }
+      }, 2000);
+    };
+
+    return newWs;
+  };
 
   useEffect(() => {
     // Initial market data fetch
@@ -76,51 +128,19 @@ export default function CryptoPriceTracker() {
       }
     };
 
-    fetchMarketData();
-    const pollInterval = setInterval(fetchMarketData, 30000); // Fallback polling every 30s
+    // Set up WebSocket connection
+    const wsConnection = createWebSocket();
+    setWs(wsConnection);
 
-    // WebSocket setup
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+    // Fallback polling every 5 seconds in case WebSocket fails
+    const pollInterval = setInterval(fetchMarketData, 5000);
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-      setConnectionError(null);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'market_update') {
-          setPrices(prev => {
-            const newPrices: Record<string, CryptoPrice> = {};
-            message.data.forEach((item: any) => {
-              newPrices[item.symbol] = {
-                symbol: item.symbol,
-                price: item.price,
-                change: item.change,
-                previousPrice: prev[item.symbol]?.price
-              };
-            });
-            return newPrices;
-          });
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    ws.onerror = () => {
-      setConnectionError('WebSocket connection error');
-    };
-
-    ws.onclose = () => {
-      setConnectionError('WebSocket connection closed');
-    };
-
+    // Clean up
     return () => {
       clearInterval(pollInterval);
-      ws.close();
+      if (wsConnection) {
+        wsConnection.close();
+      }
     };
   }, []);
 

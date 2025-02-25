@@ -23,9 +23,10 @@ let marketDataCache: CacheData = {
   retryCount: 0
 };
 
-const CACHE_DURATION = 30000; // 30 seconds
+const CACHE_DURATION = 5000; // 5 seconds
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 5000; // 5 seconds
+const RETRY_DELAY = 1000; // 1 second
+const WS_RECONNECT_DELAY = 2000; // 2 seconds
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
@@ -69,13 +70,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
+  function heartbeat() {
+    this.isAlive = true;
+  }
+
+  const pingInterval = setInterval(() => {
+    wss.clients.forEach((ws: any) => {
+      if (ws.isAlive === false) return ws.terminate();
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 30000);
+
+  wss.on('close', () => {
+    clearInterval(pingInterval);
+  });
+
   wss.on('connection', (ws) => {
     console.log('WebSocket client connected');
     let updateInterval: NodeJS.Timeout;
+    (ws as any).isAlive = true;
+
+    ws.on('pong', heartbeat);
 
     const sendMarketUpdate = async () => {
+      if (ws.readyState !== WebSocket.OPEN) return;
+
       try {
-        // Use the same retry logic as the HTTP endpoint
         const response = await fetchWithRetry();
         const transformedData = transformCoinGeckoData(response.data);
 
@@ -86,13 +107,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           retryCount: 0
         };
 
-        // Only send if connection is still open
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({
-            type: 'market_update',
-            data: transformedData
-          }));
-        }
+        ws.send(JSON.stringify({
+          type: 'market_update',
+          data: transformedData
+        }));
       } catch (error) {
         console.error('Error in WebSocket update:', error);
         // Send cached data if available
@@ -113,14 +131,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
     }
 
-    // Set up periodic updates
-    updateInterval = setInterval(sendMarketUpdate, 30000);
+    // Set up periodic updates every 5 seconds
+    updateInterval = setInterval(sendMarketUpdate, 5000);
 
-    ws.on('error', console.error);
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      clearInterval(updateInterval);
+    });
 
     ws.on('close', () => {
       console.log('WebSocket client disconnected');
       clearInterval(updateInterval);
+      // Attempt to reconnect
+      setTimeout(() => {
+        if (ws.readyState === WebSocket.CLOSED) {
+          console.log('Attempting to reconnect WebSocket...');
+          //  ws.close(); // Removed as it's not needed for reconnection attempt.
+        }
+      }, WS_RECONNECT_DELAY);
     });
   });
 
@@ -136,7 +164,7 @@ async function fetchWithRetry(retryCount = 0): Promise<any> {
         vs_currencies: 'usd',
         include_24hr_change: true
       },
-      timeout: 5000
+      timeout: 3000 // Reduced timeout for faster retries
     });
   } catch (error) {
     if (retryCount < MAX_RETRIES) {
