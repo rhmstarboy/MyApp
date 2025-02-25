@@ -15,7 +15,7 @@ const NavBar = () => {
   if (location === "/") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-border p-2">
+    <nav className="fixed bottom-0 left-0 right-0 nav-gradient border-t border-border p-2">
       <div className="flex justify-around items-center max-w-md mx-auto">
         {items.map(({ path, icon: Icon, label }) => (
           <a

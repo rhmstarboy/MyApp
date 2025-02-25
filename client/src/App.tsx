@@ -26,7 +26,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="min-h-screen page-gradient text-foreground">
         <Router />
         <NavBar />
         <Toaster />
