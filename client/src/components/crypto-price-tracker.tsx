@@ -7,6 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import AirdropCarousel from "./airdrop-carousel";
 import CryptoMood from "./crypto-mood";
 import WhaleAlert from "./whale-alert";
+import HotTrends from "./hot-trends";
+import NetworkHealth from "./network-health";
+import FearAndGreed from "./fear-and-greed";
+import GlobalTrading from "./global-trading";
 
 interface CryptoPrice {
   symbol: string;
@@ -134,13 +138,17 @@ export default function CryptoPriceTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Market sentiment widgets */}
-      <div className="space-y-6 mb-6">
+      {/* Market insight widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <CryptoMood 
           gainersCount={symbols.gainers.length}
           losersCount={symbols.losers.length}
         />
         <WhaleAlert />
+        <HotTrends />
+        <NetworkHealth />
+        <FearAndGreed />
+        <GlobalTrading />
       </div>
 
       <Tabs defaultValue="hot" className="w-full">
