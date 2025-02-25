@@ -133,7 +133,7 @@ export default function CryptoPriceTracker() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <Tabs defaultValue="hot" className="w-full">
-        <TabsList className="w-full mb-6">
+        <TabsList className="w-full mb-6 bg-primary/20">
           <TabsTrigger value="hot" className="flex-1">Hot</TabsTrigger>
           <TabsTrigger value="gainers" className="flex-1">Gainers</TabsTrigger>
           <TabsTrigger value="losers" className="flex-1">Losers</TabsTrigger>

@@ -53,7 +53,7 @@ const Home = () => {
           </div>
 
           <Tabs defaultValue="featured" className="w-full">
-            <TabsList className="w-full">
+            <TabsList className="w-full bg-primary/20 border-none">
               <TabsTrigger value="featured" className="flex-1">Featured</TabsTrigger>
               <TabsTrigger value="confirmed" className="flex-1">Confirmed</TabsTrigger>
               <TabsTrigger value="unconfirmed" className="flex-1">Unconfirmed</TabsTrigger>
