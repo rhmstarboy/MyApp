@@ -19,7 +19,6 @@ import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import ShareButton from "./share-button";
 import { useToast } from "@/hooks/use-toast";
-import { useVibrate } from "@/hooks/use-vibrate"; // Added import for useVibrate
 import type { Airdrop } from "@shared/schema";
 
 interface AirdropCardProps {
@@ -29,10 +28,8 @@ interface AirdropCardProps {
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
   const { toast } = useToast();
-  const vibrate = useVibrate();
 
   const handleJoin = () => {
-    vibrate();
     // Get current user data
     const userDataStr = localStorage.getItem('userData');
     if (!userDataStr) return;
@@ -61,7 +58,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-      <Card className="h-[280px] w-full overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
+      <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
           <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
             <AvatarImage src={airdrop.logo} alt={airdrop.name} />
@@ -100,7 +97,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="flex-1 bg-black/20" onClick={() => vibrate()}>
+              <Button variant="ghost" className="flex-1 bg-black/20">
                 View More
               </Button>
             </DialogTrigger>

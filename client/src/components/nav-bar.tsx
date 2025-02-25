@@ -2,26 +2,18 @@ import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Home, MessageSquare, Video, User, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useVibrate } from "@/hooks/use-vibrate";
 
 const NavBar = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
-  const vibrate = useVibrate();
 
   const handleLogout = () => {
-    vibrate();
     localStorage.removeItem('userData');
     setLocation('/');
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
     });
-  };
-
-  const handleNavigation = (path: string) => {
-    vibrate();
-    setLocation(path);
   };
 
   const items = [
@@ -37,7 +29,7 @@ const NavBar = () => {
         {items.map(({ path, icon: Icon, label }) => (
           <button
             key={path}
-            onClick={() => handleNavigation(path)}
+            onClick={() => setLocation(path)}
             className={cn(
               "flex flex-col items-center p-2 rounded-lg transition-colors",
               location === path

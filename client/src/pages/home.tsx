@@ -1,22 +1,16 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import AirdropCard from "@/components/airdrop-card";
+import AirdropCarousel from "@/components/airdrop-carousel";
+import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
-import { sampleAirdrops } from "@/data/airdrops";
 import type { Airdrop } from "@shared/schema";
-
-// Import widgets
-import CryptoMood from "@/components/crypto-mood";
-import HotTrends from "@/components/hot-trends";
-import NetworkHealth from "@/components/network-health";
-import WhaleAlert from "@/components/whale-alert";
-import SocialSentiment from "@/components/social-sentiment";
-import FearAndGreed from "@/components/fear-and-greed";
-import GlobalTrading from "@/components/global-trading";
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -29,19 +23,30 @@ const Home = () => {
     return null;
   }
 
-  const filteredAirdrops = sampleAirdrops.filter((airdrop) =>
+  const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
+    queryKey: ["/api/airdrops"],
+  });
+
+  const filteredAirdrops = airdrops?.filter((airdrop) =>
     airdrop.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const featuredAirdrops = filteredAirdrops.filter((a) => a.isFeatured);
-  const confirmedAirdrops = filteredAirdrops;
-  const unconfirmedAirdrops = filteredAirdrops;
+  const featuredAirdrops = filteredAirdrops?.filter((a) => a.isFeatured);
+  const confirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "confirmed");
+  const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
+
+  const handleViewMore = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Full airdrop listing will be available in the next update!",
+    });
+  };
 
   return (
     <div className="min-h-screen pb-20 bg-background">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-md mx-auto">
         {/* Header Section */}
-        <div className="sticky top-0 bg-background/80 backdrop-blur-sm p-4 border-b border-border z-50">
+        <div className="border-b border-border bg-background/80 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between mb-4">
             <Logo className="mr-4" />
             <div className="relative flex-1 max-w-md">
@@ -62,64 +67,52 @@ const Home = () => {
               <TabsTrigger value="unconfirmed" className="flex-1">Unconfirmed</TabsTrigger>
             </TabsList>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-              {/* Main Content */}
-              <div className="lg:col-span-8">
-                <TabsContent value="featured">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {featuredAirdrops.map((airdrop) => (
-                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                    ))}
-                  </div>
-                </TabsContent>
+            <div className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array(3).fill(0).map((_, i) => (
+                    <Skeleton key={i} className="h-[280px] w-[300px] rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <TabsContent value="featured">
+                    {featuredAirdrops && featuredAirdrops.length > 0 && (
+                      <AirdropCarousel onViewMore={handleViewMore}>
+                        {featuredAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
 
-                <TabsContent value="confirmed">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {confirmedAirdrops.map((airdrop) => (
-                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                    ))}
-                  </div>
-                </TabsContent>
+                  <TabsContent value="confirmed">
+                    {confirmedAirdrops && confirmedAirdrops.length > 0 && (
+                      <AirdropCarousel onViewMore={handleViewMore}>
+                        {confirmedAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
 
-                <TabsContent value="unconfirmed">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {unconfirmedAirdrops.map((airdrop) => (
-                      <AirdropCard key={airdrop.id} airdrop={airdrop} />
-                    ))}
-                  </div>
-                </TabsContent>
-              </div>
-
-              {/* Sidebar Widgets */}
-              <div className="lg:col-span-4 space-y-6">
-                <ErrorBoundary>
-                  <CryptoMood />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <HotTrends />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <NetworkHealth />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <WhaleAlert />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <SocialSentiment />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <FearAndGreed />
-                </ErrorBoundary>
-
-                <ErrorBoundary>
-                  <GlobalTrading />
-                </ErrorBoundary>
-              </div>
+                  <TabsContent value="unconfirmed">
+                    {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
+                      <AirdropCarousel onViewMore={handleViewMore}>
+                        {unconfirmedAirdrops.map((airdrop) => (
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
+                            <AirdropCard airdrop={airdrop} />
+                          </div>
+                        ))}
+                      </AirdropCarousel>
+                    )}
+                  </TabsContent>
+                </>
+              )}
             </div>
           </Tabs>
         </div>
@@ -131,6 +124,13 @@ const Home = () => {
               Ad Space
             </div>
           </div>
+
+          {/* Crypto Price Tracker wrapped in ErrorBoundary */}
+          <ErrorBoundary>
+            <div>
+              <CryptoPriceTracker />
+            </div>
+          </ErrorBoundary>
         </div>
       </div>
     </div>
