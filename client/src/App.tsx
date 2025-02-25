@@ -15,12 +15,13 @@ import LoadingTest from "@/pages/loading-test";
 function Router() {
   return (
     <Switch>
+      {/* Place LoadingTest route first to bypass auth */}
+      <Route path="/loading-test" component={LoadingTest} />
       <ProtectedRoute path="/" component={Home} />
       <ProtectedRoute path="/home" component={Home} />
       <ProtectedRoute path="/comments" component={Comments} />
       <ProtectedRoute path="/tutorials" component={Tutorials} />
       <ProtectedRoute path="/profile" component={Profile} />
-      <Route path="/loading-test" component={LoadingTest} />
       <Route component={NotFound} />
     </Switch>
   );
