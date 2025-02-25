@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { insertUserSchema } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
+import { VerificationInput } from "@/components/otp-input";
 
 // Extend the user schema with password confirmation
 const authSchema = insertUserSchema.extend({
@@ -62,6 +63,9 @@ const listItemVariants = {
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [email, setEmail] = useState("");
   const { toast } = useToast();
   const { loginMutation, registerMutation } = useAuth();
 
@@ -83,12 +87,57 @@ export default function AuthPage() {
           password: data.password,
         });
       } else {
-        registerMutation.mutate(data);
+        setEmail(data.email);
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message);
+        }
+
+        toast({
+          title: "Verification Required",
+          description: "Please check your email for the verification code.",
+        });
+        setShowVerification(true);
       }
     } catch (error) {
       toast({
         title: isLogin ? "Login failed" : "Registration failed",
         description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleVerification = async () => {
+    try {
+      const response = await fetch("/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, token: verificationCode }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+
+      const user = await response.json();
+      registerMutation.mutate(user);
+
+      toast({
+        title: "Success",
+        description: "Your account has been verified successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Verification failed",
+        description: error instanceof Error ? error.message : "Invalid verification code",
         variant: "destructive",
       });
     }
@@ -113,102 +162,130 @@ export default function AuthPage() {
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
         <AnimatePresence mode="wait">
           <motion.div
-            key={isLogin ? "login" : "register"}
+            key={isLogin ? "login" : (showVerification ? "verify" : "register")}
             variants={formVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
             <Card className="p-6">
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold mb-2">
-                  {isLogin ? "Welcome Back" : "Create Account"}
-                </h1>
-                <p className="text-muted-foreground">
-                  {isLogin
-                    ? "Sign in to access your account"
-                    : "Join our community and start exploring"}
-                </p>
-              </div>
-
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="username"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Username</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {!isLogin && (
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input type="email" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+              {showVerification ? (
+                <div>
+                  <h1 className="text-2xl font-bold mb-2">Verify Your Email</h1>
+                  <p className="text-muted-foreground mb-6">
+                    Enter the verification code sent to your email
+                  </p>
+                  <div className="space-y-6">
+                    <VerificationInput
+                      value={verificationCode}
+                      onChange={setVerificationCode}
+                      isDisabled={registerMutation.isPending}
                     />
-                  )}
+                    <Button 
+                      className="w-full"
+                      onClick={handleVerification}
+                      disabled={verificationCode.length !== 6 || registerMutation.isPending}
+                    >
+                      Verify Account
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold mb-2">
+                      {isLogin ? "Welcome Back" : "Create Account"}
+                    </h1>
+                    <p className="text-muted-foreground">
+                      {isLogin
+                        ? "Sign in to access your account"
+                        : "Join our community and start exploring"}
+                    </p>
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  {!isLogin && (
-                    <FormField
-                      control={form.control}
-                      name="passwordConfirm"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                      {!isLogin && (
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       )}
-                    />
-                  )}
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLogin ? "Sign In" : "Create Account"}
-                  </Button>
-                </form>
-              </Form>
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input type="password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-              <div className="mt-6 text-center">
-                <button
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-primary hover:underline"
-                >
-                  {isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Sign in"}
-                </button>
-              </div>
+                      {!isLogin && (
+                        <FormField
+                          control={form.control}
+                          name="passwordConfirm"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Confirm Password</FormLabel>
+                              <FormControl>
+                                <Input type="password" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLogin ? "Sign In" : "Create Account"}
+                      </Button>
+                    </form>
+                  </Form>
+
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={() => {
+                        setIsLogin(!isLogin);
+                        setShowVerification(false);
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      {isLogin
+                        ? "Don't have an account? Sign up"
+                        : "Already have an account? Sign in"}
+                    </button>
+                  </div>
+                </>
+              )}
             </Card>
           </motion.div>
         </AnimatePresence>

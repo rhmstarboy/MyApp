@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import connectPg from "connect-pg-simple";
+import { generateOTP } from "./services/verification";
 
 declare global {
   namespace Express {
@@ -68,6 +69,11 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Invalid username or password" });
         }
 
+        if (!user.isVerified) {
+          console.log("Unverified user attempt:", username);
+          return done(null, false, { message: "Please verify your email first" });
+        }
+
         console.log("Login successful for user:", username);
         return done(null, user);
       } catch (error) {
@@ -97,6 +103,31 @@ export function setupAuth(app: Express) {
     }
   });
 
+  app.post("/api/register", async (req, res) => {
+    try {
+      console.log("Registration attempt for:", req.body.username);
+      const existingUser = await storage.getUserByUsername(req.body.username);
+      if (existingUser) {
+        console.log("Username already exists:", req.body.username);
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      const user = await storage.createUser({
+        ...req.body,
+        password: await hashPassword(req.body.password),
+      });
+
+      // Generate and send OTP
+      await generateOTP(user.email);
+
+      console.log("User registration initiated, verification pending:", user.id);
+      res.status(201).json({ message: "Verification email sent" });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: SelectUser | false, info: any) => {
       if (err) {
@@ -116,34 +147,6 @@ export function setupAuth(app: Express) {
         res.json(user);
       });
     })(req, res, next);
-  });
-
-  app.post("/api/register", async (req, res) => {
-    try {
-      console.log("Registration attempt for:", req.body.username);
-      const existingUser = await storage.getUserByUsername(req.body.username);
-      if (existingUser) {
-        console.log("Username already exists:", req.body.username);
-        return res.status(400).json({ message: "Username already exists" });
-      }
-
-      const user = await storage.createUser({
-        ...req.body,
-        password: await hashPassword(req.body.password),
-      });
-
-      console.log("User registered successfully:", user.id);
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Login after registration failed:", err);
-          return res.status(500).json({ message: "Login failed after registration" });
-        }
-        res.status(201).json(user);
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Registration failed" });
-    }
   });
 
   app.post("/api/logout", (req, res) => {

@@ -3,10 +3,30 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCommentSchema } from "@shared/schema";
 import { setupAuth } from "./auth";
+import { generateOTP, verifyOTP } from "./services/verification";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
+
+  // Email verification endpoint
+  app.post("/api/verify", async (req, res) => {
+    try {
+      const { email, token } = req.body;
+      const isValid = await verifyOTP(email, token);
+
+      if (!isValid) {
+        return res.status(400).json({ message: "Invalid or expired verification code" });
+      }
+
+      // If verification successful, get the user and send it back
+      const user = await storage.getUserByEmail(email);
+      res.json(user);
+    } catch (error) {
+      console.error("Verification error:", error);
+      res.status(500).json({ message: "Verification failed" });
+    }
+  });
 
   // Get all comments
   app.get("/api/comments", async (_req, res) => {

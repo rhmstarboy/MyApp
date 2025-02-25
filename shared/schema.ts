@@ -31,6 +31,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   avatar: text("avatar"),
   bio: text("bio"),
+  isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -52,10 +53,18 @@ export const commentLikes = pgTable("comment_likes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const verificationTokens = pgTable("verification_tokens", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  token: text("token").notNull(),
+  expires: timestamp("expires").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertAirdropSchema = createInsertSchema(airdrops).omit({ id: true });
 export const insertClaimedAirdropSchema = createInsertSchema(claimedAirdrops).omit({ id: true });
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, isVerified: true });
 export const insertCommentSchema = createInsertSchema(comments).omit({ 
   id: true, 
   createdAt: true, 
@@ -64,6 +73,7 @@ export const insertCommentSchema = createInsertSchema(comments).omit({
   moderationFlags: true 
 });
 export const insertCommentLikeSchema = createInsertSchema(commentLikes).omit({ id: true, createdAt: true });
+export const insertVerificationTokenSchema = createInsertSchema(verificationTokens).omit({ id: true, createdAt: true });
 
 export type Airdrop = typeof airdrops.$inferSelect;
 export type InsertAirdrop = z.infer<typeof insertAirdropSchema>;
@@ -76,3 +86,5 @@ export type Comment = typeof comments.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
 export type CommentLike = typeof commentLikes.$inferSelect;
 export type InsertCommentLike = z.infer<typeof insertCommentLikeSchema>;
+export type VerificationToken = typeof verificationTokens.$inferSelect;
+export type InsertVerificationToken = z.infer<typeof insertVerificationTokenSchema>;
