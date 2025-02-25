@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
+import ShareButton from "./share-button";
 import type { Airdrop } from "@shared/schema";
 
 interface AirdropCardProps {
@@ -67,7 +68,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 bg-black/20">
+              <Button variant="ghost" className="flex-1 bg-black/20">
                 View More
               </Button>
             </DialogTrigger>
@@ -88,12 +89,19 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             </DialogContent>
           </Dialog>
 
-          <Button 
-            className="flex-1 bg-primary/20 hover:bg-primary/30"
-            onClick={() => window.open(airdrop.joinLink, '_blank')}
-          >
-            Join <ExternalLink className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <ShareButton 
+              title={airdrop.name}
+              description={airdrop.description}
+              url={airdrop.joinLink}
+            />
+            <Button 
+              className="bg-primary/20 hover:bg-primary/30"
+              onClick={() => window.open(airdrop.joinLink, '_blank')}
+            >
+              Join <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </>
