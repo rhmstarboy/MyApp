@@ -28,9 +28,9 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors flex flex-col">
+      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 card-gradient hover:bg-black/70 transition-colors flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
-          <Avatar className="h-12 w-12 shrink-0">
+          <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
             <AvatarImage src={airdrop.logo} alt={airdrop.name} />
             <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
           </Avatar>
@@ -67,7 +67,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
           <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1 bg-black/20">
                 View More
               </Button>
             </DialogTrigger>
@@ -89,7 +89,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
           </Dialog>
 
           <Button 
-            className="flex-1"
+            className="flex-1 bg-primary/20 hover:bg-primary/30"
             onClick={() => window.open(airdrop.joinLink, '_blank')}
           >
             Join <ExternalLink className="ml-2 h-4 w-4" />
