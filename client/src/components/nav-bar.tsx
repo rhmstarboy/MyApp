@@ -12,8 +12,6 @@ const NavBar = () => {
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
-  if (location === "/") return null;
-
   return (
     <nav className="fixed bottom-0 left-0 right-0 nav-gradient border-t border-border p-2">
       <div className="flex justify-around items-center max-w-md mx-auto">

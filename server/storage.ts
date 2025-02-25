@@ -1,39 +1,33 @@
-import { type Airdrop, type InsertAirdrop, type ClaimedAirdrop, type InsertClaimedAirdrop } from "@shared/schema";
+import { type User, type InsertUser, users } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { 
-  type User, type InsertUser,
-  type Comment, type InsertComment,
-  type CommentLike, type InsertCommentLike,
-  users, comments, commentLikes
-} from "@shared/schema";
-import { moderateContent } from "./services/moderation";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+
+const PostgresStore = connectPg(session);
 
 export interface IStorage {
+  sessionStore: session.Store;
+
   // User methods
   createUser(user: InsertUser): Promise<User>;
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-
-  // Comment methods
-  createComment(comment: InsertComment): Promise<Comment>;
-  getComment(id: number): Promise<Comment | undefined>;
-  getComments(parentId?: number): Promise<Comment[]>;
-  likeComment(like: InsertCommentLike): Promise<CommentLike>;
-  unlikeComment(userId: number, commentId: number): Promise<void>;
-  updateCommentModeration(commentId: number, status: string, flags: string[]): Promise<void>;
-
-  // Keep existing methods
-  getAirdrops(): Promise<Airdrop[]>;
-  getAirdrop(id: number): Promise<Airdrop | undefined>;
-  createAirdrop(airdrop: InsertAirdrop): Promise<Airdrop>;
-  getClaimedAirdrops(): Promise<ClaimedAirdrop[]>;
-  createClaimedAirdrop(claimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // User methods
+  sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresStore({
+      conObject: {
+        connectionString: process.env.DATABASE_URL,
+      },
+      createTableIfMissing: true,
+    });
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
       console.log("Creating user:", insertUser.username);
@@ -77,102 +71,6 @@ export class DatabaseStorage implements IStorage {
       console.error("Error fetching user by email:", error);
       throw error;
     }
-  }
-
-  // Comment methods
-  async createComment(insertComment: InsertComment): Promise<Comment> {
-    // First create the comment with pending moderation status
-    const [comment] = await db.insert(comments)
-      .values({
-        ...insertComment,
-        moderationStatus: 'pending',
-        moderationFlags: []
-      })
-      .returning();
-
-    // Start moderation in the background
-    this.moderateComment(comment.id, comment.content).catch(console.error);
-
-    return comment;
-  }
-
-  async getComment(id: number): Promise<Comment | undefined> {
-    const [comment] = await db.select().from(comments).where(eq(comments.id, id));
-    return comment;
-  }
-
-  async getComments(parentId?: number): Promise<Comment[]> {
-    return db.select()
-      .from(comments)
-      .where(parentId ? eq(comments.parentId, parentId) : eq(comments.parentId, null))
-      .orderBy(comments.createdAt);
-  }
-
-  async likeComment(insertLike: InsertCommentLike): Promise<CommentLike> {
-    const [like] = await db.insert(commentLikes).values(insertLike).returning();
-    await db
-      .update(comments)
-      .set({ likes: comments.likes + 1 })
-      .where(eq(comments.id, insertLike.commentId));
-    return like;
-  }
-
-  async unlikeComment(userId: number, commentId: number): Promise<void> {
-    await db
-      .delete(commentLikes)
-      .where(
-        eq(commentLikes.userId, userId) &&
-        eq(commentLikes.commentId, commentId)
-      );
-    await db
-      .update(comments)
-      .set({ likes: comments.likes - 1 })
-      .where(eq(comments.id, commentId));
-  }
-
-  private async moderateComment(commentId: number, content: string): Promise<void> {
-    try {
-      console.log(`Starting moderation for comment ${commentId}`);
-      const result = await moderateContent(content);
-      console.log(`Moderation result for comment ${commentId}:`, result);
-      await this.updateCommentModeration(commentId, result.status, result.flags);
-    } catch (error) {
-      console.error(`Error moderating comment ${commentId}:`, error);
-      // If moderation fails, mark as flagged for manual review
-      await this.updateCommentModeration(commentId, 'flagged', ['moderation_error']);
-    }
-  }
-
-  async updateCommentModeration(commentId: number, status: string, flags: string[]): Promise<void> {
-    try {
-      await db.update(comments)
-        .set({ 
-          moderationStatus: status,
-          moderationFlags: flags
-        })
-        .where(eq(comments.id, commentId));
-      console.log(`Updated moderation status for comment ${commentId} to ${status}`);
-    } catch (error) {
-      console.error(`Error updating moderation status for comment ${commentId}:`, error);
-      throw error;
-    }
-  }
-
-  // Keep existing methods
-  async getAirdrops(): Promise<Airdrop[]> {
-    throw new Error("Method not implemented.");
-  }
-  async getAirdrop(id: number): Promise<Airdrop | undefined> {
-    throw new Error("Method not implemented.");
-  }
-  async createAirdrop(airdrop: InsertAirdrop): Promise<Airdrop> {
-    throw new Error("Method not implemented.");
-  }
-  async getClaimedAirdrops(): Promise<ClaimedAirdrop[]> {
-    throw new Error("Method not implemented.");
-  }
-  async createClaimedAirdrop(claimed: InsertClaimedAirdrop): Promise<ClaimedAirdrop> {
-    throw new Error("Method not implemented.");
   }
 }
 
