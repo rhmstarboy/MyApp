@@ -62,8 +62,7 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
 
-    // Start the scraper with a test URL (you'll need to replace this with the actual URL)
-    // Uncomment and add the URL when ready to start scraping
-    // airdropScraper.startScheduledScraping("https://example.com/airdrops");
+    // Start the scraper
+    airdropScraper.startScheduledScraping();
   });
 })();

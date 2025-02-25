@@ -7,8 +7,60 @@ import { log } from "./vite";
 
 export class AirdropScraper {
   private isRunning = false;
+  private baseUrl = "https://airdrops.io";
 
-  async scrapeAirdrops(url: string) {
+  private async scrapeSection(url: string): Promise<InsertAirdrop[]> {
+    try {
+      const response = await axios.get(url);
+      const $ = cheerio.load(response.data);
+      const airdrops: InsertAirdrop[] = [];
+
+      // Each airdrop is in an article element
+      $("article.b-airdrop").each((_, element) => {
+        const $el = $(element);
+        const name = $el.find("h3.b-airdrop__title").text().trim();
+        const description = $el.find(".b-airdrop__description").text().trim();
+        const reward = $el.find(".b-airdrop__reward").text().trim() || "n/a";
+        const platform = $el.find(".b-airdrop__network").text().trim().toLowerCase() || "eth";
+        const totalValue = $el.find(".b-airdrop__value").text().trim() || "n/a";
+        const joinLink = $el.find("a.b-airdrop__link").attr("href") || "#";
+
+        // Get deadline if available
+        const deadlineText = $el.find(".b-airdrop__end-date").text().trim();
+        const deadline = deadlineText ? new Date(deadlineText) : new Date("2025-12-31");
+
+        // Get requirements/steps
+        const steps: string[] = [];
+        $el.find(".b-airdrop__requirements li").each((_, step) => {
+          steps.push($(step).text().trim());
+        });
+
+        // Only add if we have the minimum required fields
+        if (name && description) {
+          airdrops.push({
+            name,
+            description,
+            reward,
+            logo: $el.find(".b-airdrop__logo img").attr("src") || "https://via.placeholder.com/150",
+            deadline,
+            platform,
+            totalValue,
+            isFeatured: false,
+            joinLink,
+            status: url.includes("confirmed") ? "confirmed" : "unconfirmed",
+            steps: steps.length > 0 ? steps : ["Connect Wallet", "Complete Tasks", "Claim Airdrop"],
+          });
+        }
+      });
+
+      return airdrops;
+    } catch (error) {
+      log(`Error scraping section ${url}: ${error}`, "scraper");
+      return [];
+    }
+  }
+
+  async scrapeAirdrops() {
     if (this.isRunning) {
       log("Scraper is already running", "scraper");
       return;
@@ -16,59 +68,47 @@ export class AirdropScraper {
 
     try {
       this.isRunning = true;
-      log(`Starting scrape from ${url}`, "scraper");
+      log("Starting airdrop scrape", "scraper");
 
-      const response = await axios.get(url);
-      const $ = cheerio.load(response.data);
+      // Scrape different sections
+      const sections = [
+        { url: `${this.baseUrl}/latest`, isFeatured: true },
+        { url: `${this.baseUrl}/confirmed`, isFeatured: false },
+        { url: `${this.baseUrl}/unconfirmed`, isFeatured: false },
+      ];
 
-      // This is a template scraping logic - adjust selectors based on the target website
-      const airdrops: InsertAirdrop[] = [];
+      for (const section of sections) {
+        const airdrops = await this.scrapeSection(section.url);
 
-      // Example: Find all airdrop cards/sections
-      $(".airdrop-card").each((_, element) => {
-        const name = $(element).find(".name").text().trim();
-        const description = $(element).find(".description").text().trim();
-        const reward = $(element).find(".reward").text().trim();
-        
-        // Only add if we found required fields
-        if (name && description && reward) {
-          airdrops.push({
-            name,
-            description,
-            reward,
-            logo: $(element).find("img").attr("src") || "https://via.placeholder.com/150",
-            deadline: new Date("2025-12-31"), // Adjust based on actual data
-            platform: "eth", // Default, adjust based on actual data
-            totalValue: "n/a",
-            isFeatured: false,
-            joinLink: $(element).find(".join-link").attr("href") || "#",
-            status: "unconfirmed",
-            steps: ["Connect Wallet", "Complete Tasks", "Claim Airdrop"], // Default steps
+        // Mark latest airdrops as featured
+        if (section.isFeatured) {
+          airdrops.forEach(airdrop => {
+            airdrop.isFeatured = true;
           });
         }
-      });
 
-      // Add new airdrops to storage
-      for (const airdrop of airdrops) {
-        await storage.createAirdrop(airdrop);
+        // Add new airdrops to storage
+        for (const airdrop of airdrops) {
+          await storage.createAirdrop(airdrop);
+        }
+
+        log(`Successfully scraped ${airdrops.length} airdrops from ${section.url}`, "scraper");
       }
-
-      log(`Successfully scraped ${airdrops.length} airdrops`, "scraper");
     } catch (error) {
-      log(`Error scraping airdrops: ${error}`, "scraper");
+      log(`Error during scraping: ${error}`, "scraper");
     } finally {
       this.isRunning = false;
     }
   }
 
-  startScheduledScraping(url: string, cronSchedule = "*/30 * * * *") { // Default: every 30 minutes
+  startScheduledScraping(cronSchedule = "*/30 * * * *") { // Default: every 30 minutes
     cron.schedule(cronSchedule, () => {
-      this.scrapeAirdrops(url);
+      this.scrapeAirdrops();
     });
-    
+
     // Run initial scrape
-    this.scrapeAirdrops(url);
-    
+    this.scrapeAirdrops();
+
     log(`Scheduled scraping started with schedule: ${cronSchedule}`, "scraper");
   }
 }
