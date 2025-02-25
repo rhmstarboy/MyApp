@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { insertUserSchema } from "@shared/schema";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Extend the user schema with password confirmation
 const authSchema = insertUserSchema.extend({
@@ -25,6 +26,38 @@ const authSchema = insertUserSchema.extend({
 });
 
 type AuthFormData = z.infer<typeof authSchema>;
+
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const formVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.4 }
+  },
+  exit: {
+    opacity: 0,
+    x: 20,
+    transition: { duration: 0.3 }
+  }
+};
+
+const listItemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.3 }
+  }
+};
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -65,102 +98,129 @@ export default function AuthPage() {
     }
   };
 
+  const features = [
+    "Real-time market data and trends",
+    "Social sentiment analysis",
+    "Community discussions and insights",
+    "Personalized market alerts"
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <motion.div 
+      className="min-h-screen flex items-center justify-center bg-background"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-        <Card className="p-6">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-2">
-              {isLogin ? "Welcome Back" : "Create Account"}
-            </h1>
-            <p className="text-muted-foreground">
-              {isLogin
-                ? "Sign in to access your account"
-                : "Join our community and start exploring"}
-            </p>
-          </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isLogin ? "login" : "register"}
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <Card className="p-6">
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold mb-2">
+                  {isLogin ? "Welcome Back" : "Create Account"}
+                </h1>
+                <p className="text-muted-foreground">
+                  {isLogin
+                    ? "Sign in to access your account"
+                    : "Join our community and start exploring"}
+                </p>
+              </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {!isLogin && (
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  {!isLogin && (
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
-                />
-              )}
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {!isLogin && (
-                <FormField
-                  control={form.control}
-                  name="passwordConfirm"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  {!isLogin && (
+                    <FormField
+                      control={form.control}
+                      name="passwordConfirm"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
-                />
-              )}
 
-              <Button type="submit" className="w-full">
-                {isLogin ? "Sign In" : "Create Account"}
-              </Button>
-            </form>
-          </Form>
+                  <Button type="submit" className="w-full">
+                    {isLogin ? "Sign In" : "Create Account"}
+                  </Button>
+                </form>
+              </Form>
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin
-                ? "Don't have an account? Sign up"
-                : "Already have an account? Sign in"}
-            </button>
-          </div>
-        </Card>
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  {isLogin
+                    ? "Don't have an account? Sign up"
+                    : "Already have an account? Sign in"}
+                </button>
+              </div>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="hidden md:flex flex-col justify-center">
+        <motion.div 
+          className="hidden md:flex flex-col justify-center"
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="text-3xl font-bold mb-4">
             Track Crypto Market Insights
           </h2>
@@ -168,26 +228,29 @@ export default function AuthPage() {
             Get real-time cryptocurrency market data, social sentiment analysis,
             and community insights all in one place.
           </p>
-          <ul className="space-y-4">
-            <li className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              Real-time market data and trends
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              Social sentiment analysis
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              Community discussions and insights
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              Personalized market alerts
-            </li>
-          </ul>
-        </div>
+          <motion.ul 
+            className="space-y-4"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {features.map((feature, index) => (
+              <motion.li 
+                key={index}
+                className="flex items-center gap-2"
+                variants={listItemVariants}
+              >
+                <span className="text-primary">✓</span>
+                {feature}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
