@@ -28,7 +28,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-      <Card className="h-[280px] w-[300px] overflow-hidden border-border/50 card-gradient hover:bg-black/70 transition-colors flex flex-col">
+      <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
           <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
             <AvatarImage src={airdrop.logo} alt={airdrop.name} />
