@@ -8,12 +8,20 @@ import { useToast } from "@/hooks/use-toast";
 import AirdropCard from "@/components/airdrop-card";
 import AirdropCarousel from "@/components/airdrop-carousel";
 import CryptoPriceTracker from "@/components/crypto-price-tracker";
+import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
 
 const Home = () => {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
+
+  // Check if user is logged in
+  const userData = localStorage.getItem('userData');
+  if (!userData) {
+    window.location.href = "/";
+    return null;
+  }
 
   const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
     queryKey: ["/api/airdrops"],
@@ -117,10 +125,12 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Crypto Price Tracker */}
-          <div>
-            <CryptoPriceTracker />
-          </div>
+          {/* Crypto Price Tracker wrapped in ErrorBoundary */}
+          <ErrorBoundary>
+            <div>
+              <CryptoPriceTracker />
+            </div>
+          </ErrorBoundary>
         </div>
       </div>
     </div>

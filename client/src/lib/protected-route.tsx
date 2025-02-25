@@ -1,5 +1,4 @@
-import { useAuth } from "@/hooks/use-auth";
-import { Route } from "wouter";
+import { Route, Redirect } from "wouter";
 import { LoadingScreen } from "@/components/loading-screen";
 
 export function ProtectedRoute({
@@ -9,12 +8,14 @@ export function ProtectedRoute({
   path: string;
   component: () => React.JSX.Element;
 }) {
-  const { user, isLoading } = useAuth();
+  // Check for user data in localStorage
+  const userData = localStorage.getItem('userData');
+  const user = userData ? JSON.parse(userData) : null;
 
-  if (isLoading) {
+  if (!user) {
     return (
       <Route path={path}>
-        <LoadingScreen />
+        <Redirect to="/" />
       </Route>
     );
   }

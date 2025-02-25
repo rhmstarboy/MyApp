@@ -30,7 +30,7 @@ const priceVariants = {
 };
 
 const changeVariants = {
-  initial: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 10 },
   animate: { 
     opacity: 1, 
     y: 0,
@@ -46,63 +46,14 @@ const changeVariants = {
 export default function CryptoPriceTracker() {
   const [prices, setPrices] = useState<Record<string, CryptoPrice>>({});
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
   const { toast } = useToast();
 
-  // Function to create WebSocket connection
-  const createWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const newWs = new WebSocket(wsUrl);
-
-    newWs.onopen = () => {
-      console.log('WebSocket connected');
-      setConnectionError(null);
-    };
-
-    newWs.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'market_update') {
-          setPrices(prev => {
-            const newPrices: Record<string, CryptoPrice> = {};
-            message.data.forEach((item: any) => {
-              newPrices[item.symbol] = {
-                symbol: item.symbol,
-                price: item.price,
-                change: item.change,
-                previousPrice: prev[item.symbol]?.price
-              };
-            });
-            return newPrices;
-          });
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    newWs.onerror = () => {
-      setConnectionError('WebSocket connection error');
-      newWs.close();
-    };
-
-    newWs.onclose = () => {
-      setConnectionError('WebSocket connection closed');
-      // Attempt to reconnect after 2 seconds
-      setTimeout(() => {
-        if (newWs.readyState === WebSocket.CLOSED) {
-          console.log('Attempting to reconnect...');
-          setWs(createWebSocket());
-        }
-      }, 2000);
-    };
-
-    return newWs;
-  };
-
   useEffect(() => {
-    // Initial market data fetch
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
+    let pollInterval: NodeJS.Timeout;
+
+    // Function to fetch market data through HTTP
     const fetchMarketData = async () => {
       try {
         const response = await fetch('/api/market/ticker');
@@ -124,22 +75,94 @@ export default function CryptoPriceTracker() {
         setConnectionError(null);
       } catch (error) {
         console.error('Error fetching market data:', error);
-        setConnectionError('Failed to fetch market data');
+        // Only show error if we don't have any prices yet
+        if (Object.keys(prices).length === 0) {
+          setConnectionError('Failed to fetch market data');
+        }
       }
     };
 
-    // Set up WebSocket connection
-    const wsConnection = createWebSocket();
-    setWs(wsConnection);
+    // Function to create WebSocket connection
+    const connectWebSocket = () => {
+      if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) {
+        return;
+      }
 
-    // Fallback polling every 5 seconds in case WebSocket fails
-    const pollInterval = setInterval(fetchMarketData, 5000);
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
 
-    // Clean up
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        setConnectionError(null);
+        // Clear reconnect timeout if connection successful
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'market_update') {
+            setPrices(prev => {
+              const newPrices: Record<string, CryptoPrice> = {};
+              message.data.forEach((item: any) => {
+                newPrices[item.symbol] = {
+                  symbol: item.symbol,
+                  price: item.price,
+                  change: item.change,
+                  previousPrice: prev[item.symbol]?.price
+                };
+              });
+              return newPrices;
+            });
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setConnectionError('WebSocket connection error');
+        // Don't attempt immediate reconnection on error
+        ws?.close();
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+        // Only show connection error if we don't have polling data
+        if (Object.keys(prices).length === 0) {
+          setConnectionError('Connection closed');
+        }
+        // Attempt to reconnect after delay, but only if component is still mounted
+        reconnectTimeout = setTimeout(() => {
+          connectWebSocket();
+        }, 5000);
+      };
+    };
+
+    // Initial market data fetch
+    fetchMarketData();
+
+    // Start WebSocket connection
+    connectWebSocket();
+
+    // Set up polling as fallback
+    pollInterval = setInterval(fetchMarketData, 5000);
+
+    // Cleanup
     return () => {
-      clearInterval(pollInterval);
-      if (wsConnection) {
-        wsConnection.close();
+      if (ws) {
+        ws.close();
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
       }
     };
   }, []);
@@ -212,7 +235,7 @@ export default function CryptoPriceTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {connectionError && (
+      {connectionError && Object.keys(prices).length === 0 && (
         <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md mb-4 text-sm">
           {connectionError}. Attempting to reconnect...
         </div>

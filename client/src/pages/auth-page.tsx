@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,8 +29,8 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.6 }
   }
@@ -38,8 +38,8 @@ const containerVariants = {
 
 const formVariants = {
   hidden: { opacity: 0, x: -20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     x: 0,
     transition: { duration: 0.4 }
   }
@@ -47,8 +47,8 @@ const formVariants = {
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     x: 0,
     transition: { duration: 0.3 }
   }
@@ -57,6 +57,14 @@ const listItemVariants = {
 export default function AuthPage() {
   const { toast } = useToast();
   const [selectedAvatar, setSelectedAvatar] = useState("");
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      window.location.href = "/home";
+    }
+  }, []);
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -70,7 +78,16 @@ export default function AuthPage() {
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      // Store user data in localStorage.  In a real application, this would be a server-side call.
+      // Check if username already exists
+      const existingData = localStorage.getItem('userData');
+      if (existingData) {
+        const existing = JSON.parse(existingData);
+        if (existing.username === data.username) {
+          throw new Error("Username already taken");
+        }
+      }
+
+      // Store user data in localStorage
       const userData = {
         ...data,
         createdAt: new Date().toISOString()
@@ -82,8 +99,8 @@ export default function AuthPage() {
         description: "Your account has been created successfully.",
       });
 
-      // Redirect to home page
-      window.location.href = "/";
+      // Redirect to home page after successful signup
+      window.location.href = "/home";
     } catch (error) {
       toast({
         title: "Registration failed",
@@ -107,7 +124,7 @@ export default function AuthPage() {
   ];
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen flex items-center justify-center bg-background"
       variants={containerVariants}
       initial="hidden"
@@ -194,7 +211,7 @@ export default function AuthPage() {
           </Card>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="hidden md:flex flex-col justify-center"
           variants={formVariants}
           initial="hidden"
@@ -207,7 +224,7 @@ export default function AuthPage() {
             Get real-time cryptocurrency market data, social sentiment analysis,
             and community insights all in one place.
           </p>
-          <motion.ul 
+          <motion.ul
             className="space-y-4"
             variants={{
               visible: {
@@ -218,7 +235,7 @@ export default function AuthPage() {
             }}
           >
             {features.map((feature, index) => (
-              <motion.li 
+              <motion.li
                 key={index}
                 className="flex items-center gap-2"
                 variants={listItemVariants}
