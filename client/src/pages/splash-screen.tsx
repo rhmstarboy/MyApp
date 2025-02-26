@@ -15,15 +15,16 @@ const SplashScreen = () => {
   }, [setLocation]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black">
+    <div className="min-h-screen flex flex-col items-center justify-between bg-black py-20">
+      <div /> {/* Empty div for spacing */}
+
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="mb-12"
       >
         <img 
-          src="/assets/IMG_7608.png" 
+          src="/assets/IMG_7606.png" 
           alt="Logo" 
           className="w-32 h-32"
         />
@@ -35,9 +36,7 @@ const SplashScreen = () => {
         transition={{ delay: 0.5, duration: 0.5 }}
       >
         <Button
-          variant="outline"
-          size="lg"
-          className="text-lg font-semibold"
+          className="bg-primary/20 hover:bg-primary/30 text-lg font-semibold px-8 py-6"
           onClick={() => setLocation('/auth')}
         >
           GET STARTED
