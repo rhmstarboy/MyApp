@@ -87,6 +87,15 @@ const Profile = () => {
             </Button>
           ))}
         </div>
+
+        {/* AdMob Banner Section */}
+        <div className="mt-6">
+          <AdBanner 
+            className="w-full" 
+            format="horizontal"
+            slot="2649994893"
+          />
+        </div>
       </div>
     </div>
   );
