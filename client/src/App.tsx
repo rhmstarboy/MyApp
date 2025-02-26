@@ -16,20 +16,26 @@ import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
 
 function Router() {
+  const [location] = useLocation();
+  const showNav = !['/', '/auth'].includes(location);
+
   return (
-    <Switch>
-      {/* Auth page is the primary route */}
-      <Route path="/" component={AuthPage} />
-      <Route path="/auth" component={AuthPage} />
-      <Route path="/loading-test" component={LoadingTest} />
-      <ProtectedRoute path="/home" component={Home} />
-      <ProtectedRoute path="/games" component={Games} />
-      <ProtectedRoute path="/comments" component={Comments} />
-      <ProtectedRoute path="/tutorials" component={Tutorials} />
-      <ProtectedRoute path="/support" component={Support} />
-      <ProtectedRoute path="/profile" component={Profile} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      {showNav && <NavBar />}
+      <Switch>
+        {/* Auth page is the primary route */}
+        <Route path="/" component={AuthPage} />
+        <Route path="/auth" component={AuthPage} />
+        <Route path="/loading-test" component={LoadingTest} />
+        <ProtectedRoute path="/home" component={Home} />
+        <ProtectedRoute path="/games" component={Games} />
+        <ProtectedRoute path="/comments" component={Comments} />
+        <ProtectedRoute path="/tutorials" component={Tutorials} />
+        <ProtectedRoute path="/support" component={Support} />
+        <ProtectedRoute path="/profile" component={Profile} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 
