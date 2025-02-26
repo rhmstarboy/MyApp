@@ -24,7 +24,7 @@ const SplashScreen = () => {
         transition={{ duration: 0.5 }}
       >
         <img 
-          src="/assets/new-logo.png" 
+          src="/assets/IMG_7608.png" 
           alt="Logo" 
           className="w-36 h-36 object-contain"
         />
