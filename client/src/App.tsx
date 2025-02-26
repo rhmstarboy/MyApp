@@ -24,10 +24,9 @@ function Router() {
     <>
       {showNav && <NavBar />}
       <Switch>
-        {/* Auth page is the primary route */}
-        <Route path="/" component={AuthPage} />
+        {/* Loading test (splash screen) is the primary route */}
+        <Route path="/" component={LoadingTest} />
         <Route path="/auth" component={AuthPage} />
-        <Route path="/loading-test" component={LoadingTest} />
         <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/games" component={Games} />
         <ProtectedRoute path="/comments" component={Comments} />
