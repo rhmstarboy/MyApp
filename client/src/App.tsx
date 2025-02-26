@@ -11,6 +11,7 @@ import Tutorials from "@/pages/tutorials";
 import Games from "@/pages/games";
 import Support from "@/pages/support";
 import Profile from "@/pages/profile";
+import MemeGenerator from "@/pages/meme-generator";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
@@ -28,6 +29,7 @@ function Router() {
       <ProtectedRoute path="/tutorials" component={Tutorials} />
       <ProtectedRoute path="/support" component={Support} />
       <ProtectedRoute path="/profile" component={Profile} />
+      <ProtectedRoute path="/memes" component={MemeGenerator} />
       <Route component={NotFound} />
     </Switch>
   );

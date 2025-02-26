@@ -1,25 +1,17 @@
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, Heart, Video, User, LogOut, Gamepad2 } from "lucide-react";
+import { Home, Heart, Video, User, Gamepad2, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const NavBar = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem('userData');
-    setLocation('/');
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-  };
-
   const items = [
     { path: "/games", icon: Gamepad2, label: "Games" },
     { path: "/tutorials", icon: Video, label: "Tutorials" },
     { path: "/home", icon: Home, label: "Home" },
+    { path: "/memes", icon: Image, label: "Memes" },
     { path: "/support", icon: Heart, label: "Support" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
