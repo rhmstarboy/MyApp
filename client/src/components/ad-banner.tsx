@@ -10,7 +10,7 @@ interface AdBannerProps {
 export function AdBanner({ 
   className,
   format = 'auto',
-  slot = '2649994893'
+  slot = '6687939104'
 }: AdBannerProps) {
   useEffect(() => {
     // Wait for adsense to be ready
