@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Sparkles, Coins } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -32,11 +32,11 @@ const Home = () => {
           id: 1,
           name: "Sonus Exchange",
           description: "Participate in the Sonus Exchange airdrop by providing liquidity in eligible pools and staking LP tokens. Earn points during Phase 2 to claim your veSONUS positions.",
-          logo: "/attached_assets/IMG_7592.jpeg",
+          logo: "",
           reward: "SONUS Tokens",
           totalValue: "200M SONUS",
           platform: "Soneium",
-          icon: Sparkles, // Placeholder - Replace with actual icon component
+          icon: Sparkles, // Adding Lucide icon for Sonus
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://sonus.exchange",
@@ -57,10 +57,11 @@ const Home = () => {
           id: 2,
           name: "Ethereal Season Zero",
           description: "Participate in Ethereal's Season Zero campaign to earn rewards and points by depositing USDe tokens. Earn additional rewards through referrals and optional boosting opportunities.",
-          logo: "", // Will be filled with logo URL
+          logo: "",
           reward: "Points & Rewards",
           totalValue: "$500",
           platform: "Ethereum",
+          icon: Coins, // Adding Lucide icon for Ethereal
           status: "confirmed",
           isFeatured: false,
           joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
