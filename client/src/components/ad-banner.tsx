@@ -13,11 +13,20 @@ export function AdBanner({
   slot = '6687939104'
 }: AdBannerProps) {
   useEffect(() => {
-    try {
-      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-    } catch (e) {
-      console.error('AdMob error:', e);
-    }
+    // Wait for adsense to be ready
+    const tryLoad = () => {
+      if (!(window as any).adsbygoogle) {
+        setTimeout(tryLoad, 50);
+        return;
+      }
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+        console.log('Ad push attempted');
+      } catch (e) {
+        console.error('AdMob error:', e);
+      }
+    };
+    tryLoad();
   }, []);
 
   const adStyle = {
