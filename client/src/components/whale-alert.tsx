@@ -62,8 +62,8 @@ export default function WhaleAlert() {
   }, []);
 
   return (
-    <Card className="h-[280px] w-[300px] overflow-hidden bg-black/50 border-primary/20">
-      <div className="p-4 h-full flex flex-col">
+    <Card className="relative overflow-hidden bg-black/50 border-primary/20">
+      <div className="p-4">
         <div className="flex items-center gap-3 mb-4">
           <motion.div
             animate={{
@@ -82,7 +82,7 @@ export default function WhaleAlert() {
           <h3 className="text-lg font-semibold">Whale Alert</h3>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {transactions.map((tx) => (
               <motion.div
@@ -90,7 +90,7 @@ export default function WhaleAlert() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="relative mb-3 last:mb-0"
+                className="relative"
               >
                 <div className="bg-primary/10 rounded-lg p-3">
                   <div className="flex justify-between items-center mb-1">
