@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import Comments from "@/pages/comments";
 import Tutorials from "@/pages/tutorials";
 import Games from "@/pages/games";
+import Support from "@/pages/support";
 import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
@@ -25,6 +26,7 @@ function Router() {
       <ProtectedRoute path="/games" component={Games} />
       <ProtectedRoute path="/comments" component={Comments} />
       <ProtectedRoute path="/tutorials" component={Tutorials} />
+      <ProtectedRoute path="/support" component={Support} />
       <ProtectedRoute path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
