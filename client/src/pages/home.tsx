@@ -39,7 +39,7 @@ const Home = () => {
           status: "confirmed",
           isFeatured: false,
           joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
-          deadline: "2025-05-29",
+          deadline: new Date("2025-05-29"),
           steps: [
             "Acquire USDe Tokens from Binance",
             "Visit Ethereal Platform and connect Web3 wallet",
@@ -53,13 +53,13 @@ const Home = () => {
     }
   });
 
-  const filteredAirdrops = airdrops?.filter((airdrop) =>
+  const filteredAirdrops = airdrops?.filter((airdrop: Airdrop) =>
     airdrop.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const featuredAirdrops = filteredAirdrops?.filter((a) => a.isFeatured);
-  const confirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "confirmed");
-  const unconfirmedAirdrops = filteredAirdrops?.filter((a) => a.status === "unconfirmed");
+  const featuredAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.isFeatured);
+  const confirmedAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.status === "confirmed");
+  const unconfirmedAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.status === "unconfirmed");
 
   const handleViewMore = () => {
     toast({
