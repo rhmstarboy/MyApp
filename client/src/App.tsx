@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NavBar from "@/components/nav-bar";
+import { CryptoMascot } from "@/components/crypto-mascot";
 import Home from "@/pages/home";
 import Comments from "@/pages/comments";
 import Tutorials from "@/pages/tutorials";
@@ -31,15 +32,20 @@ function Router() {
 }
 
 function App() {
-  // Check if user is logged in to show/hide NavBar
+  // Check if user is logged in to show/hide NavBar and Mascot
   const isLoggedIn = !!localStorage.getItem('userData');
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen page-gradient text-foreground">
         <Router />
-        {/* Only show NavBar if user is logged in */}
-        {isLoggedIn && <NavBar />}
+        {/* Only show NavBar and Mascot if user is logged in */}
+        {isLoggedIn && (
+          <>
+            <NavBar />
+            <CryptoMascot />
+          </>
+        )}
         <Toaster />
       </div>
     </QueryClientProvider>
