@@ -21,6 +21,10 @@ import ShareButton from "./share-button";
 import { useToast } from "@/hooks/use-toast";
 import type { Airdrop } from "@shared/schema";
 
+interface Airdrop extends Airdrop {
+  icon?: React.ComponentType<{ size: number }>; // Added icon property
+}
+
 interface AirdropCardProps {
   airdrop: Airdrop;
 }
@@ -30,26 +34,21 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const { toast } = useToast();
 
   const handleJoin = () => {
-    // Get current user data
     const userDataStr = localStorage.getItem('userData');
     if (!userDataStr) return;
 
     const userData = JSON.parse(userDataStr);
 
-    // Update claimed count and total value
     const updatedUserData = {
       ...userData,
       claimedAirdrops: (userData.claimedAirdrops || 0) + 1,
       totalValue: (userData.totalValue || 0) + parseFloat(airdrop.totalValue.replace(/[^0-9.]/g, ''))
     };
 
-    // Save updated user data
     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
-    // Open airdrop link
     window.open(airdrop.joinLink, '_blank');
 
-    // Show success toast
     toast({
       title: "Airdrop Claimed!",
       description: "The airdrop has been added to your profile.",
@@ -61,8 +60,16 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
       <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
           <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
-            <AvatarImage src={airdrop.logo} alt={airdrop.name} />
-            <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
+            {airdrop.icon ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary">
+                <airdrop.icon size={24} />
+              </div>
+            ) : (
+              <>
+                <AvatarImage src={airdrop.logo} alt={airdrop.name} />
+                <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
+              </>
+            )}
           </Avatar>
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold truncate">{airdrop.name}</h3>

@@ -32,10 +32,11 @@ const Home = () => {
           id: 1,
           name: "Sonus Exchange",
           description: "Participate in the Sonus Exchange airdrop by providing liquidity in eligible pools and staking LP tokens. Earn points during Phase 2 to claim your veSONUS positions.",
-          logo: "/attached_assets/IMG_7606.png",
+          logo: "/attached_assets/IMG_7592.jpeg",
           reward: "SONUS Tokens",
           totalValue: "200M SONUS",
           platform: "Soneium",
+          icon: Sparkles, // Placeholder - Replace with actual icon component
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://sonus.exchange",
