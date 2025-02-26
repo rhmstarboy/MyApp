@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Bitcoin } from "lucide-react";
+import { PartyPopper } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const pulseVariants = {
   animate: {
@@ -14,43 +15,43 @@ const pulseVariants = {
 };
 
 const fadeInVariants = {
-  initial: { opacity: 0 },
+  initial: { opacity: 0, y: 20 },
   animate: { 
     opacity: 1,
+    y: 0,
     transition: { duration: 0.5 }
   }
 };
 
-const textVariants = {
+const logoVariants = {
   animate: {
-    color: [
-      "hsl(280, 85%, 65%)", // Primary color
-      "hsl(210, 85%, 65%)", // Blue
-      "hsl(130, 85%, 65%)", // Green
-      "hsl(280, 85%, 65%)"  // Back to primary
-    ],
+    scale: [0.9, 1, 0.9],
     transition: {
       duration: 4,
       repeat: Infinity,
-      ease: "linear"
+      ease: "easeInOut"
     }
   }
 };
 
-export function LoadingScreen() {
+interface LoadingScreenProps {
+  onGetStarted?: () => void;
+}
+
+export function LoadingScreen({ onGetStarted }: LoadingScreenProps) {
   return (
     <motion.div 
-      className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4"
       variants={fadeInVariants}
       initial="initial"
       animate="animate"
     >
-      <div className="relative">
+      <div className="relative max-w-md w-full mx-auto text-center">
         {/* Pulsing rings */}
         {[1, 2, 3].map((index) => (
           <motion.div
             key={index}
-            className="absolute inset-0 border-2 border-primary/20 rounded-full w-32 h-32"
+            className="absolute inset-0 border-2 border-primary/20 rounded-full w-32 h-32 mx-auto"
             variants={pulseVariants}
             animate="animate"
             style={{ 
@@ -60,31 +61,50 @@ export function LoadingScreen() {
           />
         ))}
 
-        {/* Centered Bitcoin icon with rotate and scale animation */}
-        <div className="relative w-32 h-32 flex items-center justify-center">
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 360],
-              transition: {
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            }}
-          >
-            <Bitcoin className="h-12 w-12 text-primary" />
-          </motion.div>
-        </div>
-
-        {/* Loading text with color animation */}
-        <motion.p 
-          className="text-center mt-8 text-lg font-medium"
-          variants={textVariants}
+        {/* Logo */}
+        <motion.div
+          className="relative w-32 h-32 mx-auto mb-8 flex items-center justify-center"
+          variants={logoVariants}
           animate="animate"
         >
-          Loading market data...
-        </motion.p>
+          <div className="absolute inset-0 bg-primary/20 rounded-full" />
+          <PartyPopper className="h-16 w-16 text-primary" />
+        </motion.div>
+
+        {/* Text Content */}
+        <motion.div 
+          variants={fadeInVariants}
+          initial="initial"
+          animate="animate"
+          className="space-y-4"
+        >
+          <h1 className="text-4xl font-bold text-primary">
+            CryptoLearn
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Welcome to Your Crypto Journey
+          </p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            Get airdrop updates and learn about cryptocurrency while earning rewards
+          </p>
+
+          {onGetStarted && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Button
+                variant="outline"
+                size="lg"
+                className="mt-8 bg-primary/20 hover:bg-primary/30 border-primary/20"
+                onClick={onGetStarted}
+              >
+                Get Started
+              </Button>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
     </motion.div>
   );

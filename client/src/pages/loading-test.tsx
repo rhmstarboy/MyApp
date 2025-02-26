@@ -1,10 +1,17 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
 import { LoadingScreen } from "@/components/loading-screen";
 
 export default function LoadingTest() {
-  // Render only the loading screen without any other components or contexts
+  const [, setLocation] = useLocation();
+
+  const handleGetStarted = () => {
+    setLocation("/auth");
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <LoadingScreen />
+      <LoadingScreen onGetStarted={handleGetStarted} />
     </div>
   );
 }
