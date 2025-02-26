@@ -29,7 +29,7 @@ const AirdropCarousel = ({ children, onViewMore }: CarouselProps) => {
           {children}
           {onViewMore && (
             <div className="flex-[0_0_300px] px-2">
-              <div className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors rounded-lg flex items-center justify-center">
+              <div className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border border-primary/20 rounded-lg flex items-center justify-center">
                 <Button 
                   variant="outline" 
                   className="text-lg"
