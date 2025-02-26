@@ -5,6 +5,7 @@ import { Settings, Bell, Shield, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AdBanner } from "@/components/ad-banner"; // Added import
 
 // Avatar mapping (keep in sync with avatar-selector.tsx)
 const avatarEmojis: Record<string, string> = {
@@ -148,6 +149,11 @@ const Profile = () => {
               </Button>
             )
           ))}
+        </div>
+
+        {/* Ad Banner Section */}
+        <div className="mt-8">
+          <AdBanner className="w-full h-[100px]" format="horizontal" />
         </div>
       </div>
     </div>

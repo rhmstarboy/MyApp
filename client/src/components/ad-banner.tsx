@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 
 interface AdBannerProps {
@@ -10,7 +9,7 @@ interface AdBannerProps {
 export function AdBanner({ 
   className,
   format = 'auto',
-  slot = '6687939104'
+  slot = '2649994893'
 }: AdBannerProps) {
   useEffect(() => {
     // Wait for adsense to be ready
