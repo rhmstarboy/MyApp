@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Waves, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface WhaleTransaction {
   id: string;
@@ -131,11 +132,22 @@ export default function WhaleAlert() {
                     ease: "easeOut",
                   }}
                 >
-                  <div className={`w-full h-full border-2 border-primary/20 rounded-lg`} />
+                  <div className="w-full h-full border-2 border-primary/20 rounded-lg" />
                 </motion.div>
               </motion.div>
             ))}
           </AnimatePresence>
+        </div>
+
+        {/* View More Button */}
+        <div className="mt-4">
+          <Button 
+            variant="ghost" 
+            className="w-full bg-primary/10 hover:bg-primary/20"
+            onClick={() => {}}
+          >
+            View More
+          </Button>
         </div>
       </div>
     </Card>
