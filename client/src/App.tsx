@@ -14,6 +14,7 @@ import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
+import { useLocation } from "wouter";
 
 function Router() {
   const [location] = useLocation();
@@ -47,13 +48,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen page-gradient text-foreground">
         <Router />
-        {/* Only show NavBar and Mascot if user is logged in */}
-        {isLoggedIn && (
-          <>
-            <NavBar />
-            <CryptoMascot />
-          </>
-        )}
+        {/* Only show Mascot if user is logged in */}
+        {isLoggedIn && <CryptoMascot />}
         <Toaster />
       </div>
     </QueryClientProvider>
