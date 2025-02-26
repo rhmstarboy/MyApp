@@ -23,7 +23,7 @@ const Home = () => {
     return null;
   }
 
-  const { data: airdrops, isLoading } = useQuery<Airdrop[]>({
+  const { data: airdrops, isLoading, error } = useQuery<Airdrop[]>({
     queryKey: ["/api/airdrops"],
     queryFn: () => {
       // Static airdrop data for testing
@@ -50,7 +50,9 @@ const Home = () => {
           ]
         }
       ];
-    }
+    },
+    retry: 3,
+    retryDelay: 5000
   });
 
   const filteredAirdrops = airdrops?.filter((airdrop: Airdrop) =>
@@ -60,6 +62,17 @@ const Home = () => {
   const featuredAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.isFeatured);
   const confirmedAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.status === "confirmed");
   const unconfirmedAirdrops = filteredAirdrops?.filter((a: Airdrop) => a.status === "unconfirmed");
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Unable to load airdrops</h2>
+          <p className="text-muted-foreground">Please try again later</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleViewMore = () => {
     toast({
