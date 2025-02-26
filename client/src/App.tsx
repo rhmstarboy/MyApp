@@ -7,6 +7,7 @@ import NavBar from "@/components/nav-bar";
 import Home from "@/pages/home";
 import Comments from "@/pages/comments";
 import Tutorials from "@/pages/tutorials";
+import Games from "@/pages/games";
 import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/loading-test" component={LoadingTest} />
       <ProtectedRoute path="/home" component={Home} />
+      <ProtectedRoute path="/games" component={Games} />
       <ProtectedRoute path="/comments" component={Comments} />
       <ProtectedRoute path="/tutorials" component={Tutorials} />
       <ProtectedRoute path="/profile" component={Profile} />

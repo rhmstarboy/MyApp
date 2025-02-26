@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, MessageSquare, Video, User, LogOut } from "lucide-react";
+import { Home, MessageSquare, Video, User, LogOut, Gamepad2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const NavBar = () => {
@@ -18,7 +18,7 @@ const NavBar = () => {
 
   const items = [
     { path: "/home", icon: Home, label: "Latest" },
-    { path: "/comments", icon: MessageSquare, label: "Comments" },
+    { path: "/games", icon: Gamepad2, label: "Games" },
     { path: "/tutorials", icon: Video, label: "Tutorials" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
