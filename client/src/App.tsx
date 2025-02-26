@@ -41,12 +41,14 @@ function Router() {
 }
 
 function App() {
+  // Check if user is logged in to show/hide NavBar and Mascot
   const isLoggedIn = !!localStorage.getItem('userData');
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen page-gradient text-foreground">
         <Router />
+        {/* Only show Mascot if user is logged in */}
         {isLoggedIn && <CryptoMascot />}
         <Toaster />
       </div>

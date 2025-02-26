@@ -45,7 +45,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       serveStatic(app);
     }
 
-    const port = process.env.PORT || 3000; // Changed default port here
+    const port = process.env.PORT || 5000;
     server.listen({
       port,
       host: "0.0.0.0",

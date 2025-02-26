@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { AvatarSelector } from "@/components/avatar-selector";
 import { useLocation } from "wouter";
 
@@ -28,10 +28,36 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const formVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4 }
+  }
+};
+
+const listItemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.3 }
+  }
+};
+
 export default function AuthPage() {
   const { toast } = useToast();
   const [selectedAvatar, setSelectedAvatar] = useState("");
-  const [showAuthForm, setShowAuthForm] = useState(false);
   const [, setLocation] = useLocation();
 
   // Check if user is already logged in
@@ -101,51 +127,18 @@ export default function AuthPage() {
     "Personalized market alerts"
   ];
 
-  if (!showAuthForm) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-between bg-black py-20">
-        <div /> {/* Empty div for spacing */}
-
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <img 
-            src="/assets/IMG_7608.png"
-            alt="Logo"
-            className="w-36 h-36 object-contain"
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <Button
-            className="bg-primary/20 hover:bg-primary/30 text-lg font-semibold px-8 py-6"
-            onClick={() => setShowAuthForm(true)}
-          >
-            GET STARTED
-          </Button>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
       className="min-h-screen flex items-center justify-center bg-background"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
         >
           <Card className="p-6">
             <div className="mb-8">
@@ -224,9 +217,9 @@ export default function AuthPage() {
 
         <motion.div
           className="hidden md:flex flex-col justify-center"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
         >
           <h2 className="text-3xl font-bold mb-4">
             Track Crypto Market Insights
@@ -237,8 +230,6 @@ export default function AuthPage() {
           </p>
           <motion.ul
             className="space-y-4"
-            initial="hidden"
-            animate="visible"
             variants={{
               visible: {
                 transition: {
@@ -251,14 +242,7 @@ export default function AuthPage() {
               <motion.li
                 key={index}
                 className="flex items-center gap-2"
-                variants={{
-                  hidden: { opacity: 0, x: -20 },
-                  visible: {
-                    opacity: 1,
-                    x: 0,
-                    transition: { duration: 0.3 }
-                  }
-                }}
+                variants={listItemVariants}
               >
                 <span className="text-primary">✓</span>
                 {feature}
