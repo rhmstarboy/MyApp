@@ -183,7 +183,7 @@ export default function CryptoPriceTracker() {
 
     return (
       <div key={symbol} className="flex-[0_0_300px] px-2">
-        <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border-primary/20">
+        <Card className="p-6 h-[200px] w-[300px] card-gradient hover:bg-black/70 transition-colors border-primary/20">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xl font-bold">{symbol}</span>
             <motion.div
