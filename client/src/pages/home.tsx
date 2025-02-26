@@ -145,7 +145,7 @@ const Home = () => {
                     {featuredAirdrops && featuredAirdrops.length > 0 && (
                       <AirdropCarousel onViewMore={handleViewMore}>
                         {featuredAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_320px] px-2">
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />
                           </div>
                         ))}
@@ -157,7 +157,7 @@ const Home = () => {
                     {confirmedAirdrops && confirmedAirdrops.length > 0 && (
                       <AirdropCarousel onViewMore={handleViewMore}>
                         {confirmedAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_320px] px-2">
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />
                           </div>
                         ))}
@@ -169,7 +169,7 @@ const Home = () => {
                     {unconfirmedAirdrops && unconfirmedAirdrops.length > 0 && (
                       <AirdropCarousel onViewMore={handleViewMore}>
                         {unconfirmedAirdrops.map((airdrop) => (
-                          <div key={airdrop.id} className="flex-[0_0_320px] px-2">
+                          <div key={airdrop.id} className="flex-[0_0_300px] px-2">
                             <AirdropCard airdrop={airdrop} />
                           </div>
                         ))}
