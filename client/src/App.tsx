@@ -14,18 +14,19 @@ import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
+import SplashScreen from "@/pages/splash-screen";
 import { useLocation } from "wouter";
 
 function Router() {
   const [location] = useLocation();
-  const showNav = !['/', '/auth'].includes(location);
+  const showNav = !['/', '/auth', '/splash'].includes(location);
 
   return (
     <>
       {showNav && <NavBar />}
       <Switch>
-        {/* Auth page is the primary route */}
-        <Route path="/" component={AuthPage} />
+        {/* SplashScreen is the primary route */}
+        <Route path="/" component={SplashScreen} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/loading-test" component={LoadingTest} />
         <ProtectedRoute path="/home" component={Home} />
@@ -41,14 +42,12 @@ function Router() {
 }
 
 function App() {
-  // Check if user is logged in to show/hide NavBar and Mascot
   const isLoggedIn = !!localStorage.getItem('userData');
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen page-gradient text-foreground">
         <Router />
-        {/* Only show Mascot if user is logged in */}
         {isLoggedIn && <CryptoMascot />}
         <Toaster />
       </div>
