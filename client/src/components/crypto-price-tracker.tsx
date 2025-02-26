@@ -10,6 +10,7 @@ import WhaleAlert from "./whale-alert";
 import NetworkHealth from "./network-health";
 import GlobalTrading from "./global-trading";
 import SocialSentiment from "./social-sentiment";
+import { Button } from "@/components/ui/button"; 
 
 interface CryptoPrice {
   symbol: string;
@@ -18,7 +19,6 @@ interface CryptoPrice {
   previousPrice?: number;
 }
 
-// Major cryptocurrencies
 const HOT_SYMBOLS = ["BITCOIN", "ETHEREUM", "SOLANA"];
 
 const priceVariants = {
@@ -53,7 +53,6 @@ export default function CryptoPriceTracker() {
     let reconnectTimeout: NodeJS.Timeout;
     let pollInterval: NodeJS.Timeout;
 
-    // Function to fetch market data through HTTP
     const fetchMarketData = async () => {
       try {
         const response = await fetch('/api/market/ticker');
@@ -75,14 +74,12 @@ export default function CryptoPriceTracker() {
         setConnectionError(null);
       } catch (error) {
         console.error('Error fetching market data:', error);
-        // Only show error if we don't have any prices yet
         if (Object.keys(prices).length === 0) {
           setConnectionError('Failed to fetch market data');
         }
       }
     };
 
-    // Function to create WebSocket connection
     const connectWebSocket = () => {
       if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) {
         return;
@@ -96,7 +93,6 @@ export default function CryptoPriceTracker() {
       ws.onopen = () => {
         console.log('WebSocket connected');
         setConnectionError(null);
-        // Clear reconnect timeout if connection successful
         if (reconnectTimeout) {
           clearTimeout(reconnectTimeout);
         }
@@ -127,33 +123,24 @@ export default function CryptoPriceTracker() {
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
         setConnectionError('WebSocket connection error');
-        // Don't attempt immediate reconnection on error
         ws?.close();
       };
 
       ws.onclose = () => {
         console.log('WebSocket closed');
-        // Only show connection error if we don't have polling data
         if (Object.keys(prices).length === 0) {
           setConnectionError('Connection closed');
         }
-        // Attempt to reconnect after delay, but only if component is still mounted
         reconnectTimeout = setTimeout(() => {
           connectWebSocket();
         }, 5000);
       };
     };
 
-    // Initial market data fetch
     fetchMarketData();
-
-    // Start WebSocket connection
     connectWebSocket();
-
-    // Set up polling as fallback
     pollInterval = setInterval(fetchMarketData, 5000);
 
-    // Cleanup
     return () => {
       if (ws) {
         ws.close();
@@ -241,7 +228,6 @@ export default function CryptoPriceTracker() {
         </div>
       )}
 
-      {/* Market insight widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <CryptoMood data={prices} />
         <WhaleAlert />
@@ -258,6 +244,19 @@ export default function CryptoPriceTracker() {
         <TabsContent value="hot">
           <AirdropCarousel onViewMore={handleViewMore}>
             {HOT_SYMBOLS.map(symbol => renderCryptoCard(symbol))}
+            <div className="flex-[0_0_300px] px-2">
+              <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border border-primary/20">
+                <div className="h-full flex items-center justify-center">
+                  <Button 
+                    variant="outline"
+                    className="text-lg"
+                    onClick={handleViewMore}
+                  >
+                    View More
+                  </Button>
+                </div>
+              </Card>
+            </div>
           </AirdropCarousel>
         </TabsContent>
       </Tabs>
