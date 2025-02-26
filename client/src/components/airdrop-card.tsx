@@ -57,7 +57,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
   return (
     <>
-    <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
+    <Card className="h-[320px] w-[320px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
         <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
           {airdrop.icon ? (
@@ -101,7 +101,7 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
           </p>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
+      <CardFooter className="p-4 pt-0 flex gap-2 h-[72px]">
         <Dialog open={isStepsOpen} onOpenChange={setIsStepsOpen}>
           <DialogTrigger asChild>
             <Button variant="ghost" className="flex-1 bg-black/20">
