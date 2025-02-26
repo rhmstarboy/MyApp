@@ -47,6 +47,7 @@ export function LoadingScreen({ onGetStarted }: LoadingScreenProps) {
       animate="animate"
     >
       <div className="relative max-w-md w-full mx-auto text-center">
+        {/* Pulsing rings */}
         {[1, 2, 3].map((index) => (
           <motion.div
             key={index}
@@ -60,6 +61,7 @@ export function LoadingScreen({ onGetStarted }: LoadingScreenProps) {
           />
         ))}
 
+        {/* Logo */}
         <motion.div
           className="relative w-32 h-32 mx-auto mb-8 flex items-center justify-center"
           variants={logoVariants}
@@ -98,7 +100,7 @@ export function LoadingScreen({ onGetStarted }: LoadingScreenProps) {
                 className="mt-8 bg-primary/20 hover:bg-primary/30 border-primary/20"
                 onClick={onGetStarted}
               >
-                Get Updates
+                Get Started
               </Button>
             </motion.div>
           )}

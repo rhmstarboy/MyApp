@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Settings, Bell, Shield, LogOut } from "lucide-react";
+import { Settings, Bell, Shield, LogOut, FileText } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 // Avatar mapping (keep in sync with avatar-selector.tsx)
 const avatarEmojis: Record<string, string> = {
@@ -24,6 +26,8 @@ const Profile = () => {
   const { toast } = useToast();
   const initials = user?.username.slice(0, 2).toUpperCase() || "UN";
 
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+
   const handleLogout = () => {
     localStorage.removeItem('userData');
     setLocation('/');
@@ -32,6 +36,19 @@ const Profile = () => {
       description: "You have been successfully logged out.",
     });
   };
+
+  const menuItems = [
+    {
+      icon: <FileText className="h-4 w-4" />,
+      label: "Privacy Policy",
+      onClick: () => setShowPrivacyPolicy(true)
+    },
+    {
+      icon: <LogOut className="h-4 w-4" />,
+      label: "Logout",
+      onClick: handleLogout
+    }
+  ];
 
   return (
     <div className="min-h-screen pb-20">
@@ -97,6 +114,47 @@ const Profile = () => {
           />
         </div>
       </div>
+    <Dialog open={showPrivacyPolicy} onOpenChange={setShowPrivacyPolicy}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Privacy Policy for AirDropor</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <p className="text-muted-foreground">Last Updated: Feb, 2025</p>
+            
+            <p>Thank you for using AirDropor. Your privacy is important to us. This Privacy Policy explains how we handle your information when you use our app.</p>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">1. Information We Do Not Collect</h3>
+              <p>AirDropor does not collect, store, or process any personal information from its users. We do not require registration, and no personal data (such as name, email, phone number, or wallet address) is requested or accessed.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">2. How We Operate</h3>
+              <p>AirDropor is designed to provide updates on crypto airdrops without requiring any user information. The app functions as a notification service for upcoming and new coin airdrops.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">3. Third-Party Links</h3>
+              <p>The app may contain links to third-party websites or services. We are not responsible for the privacy practices or content of these external sites. Please review their privacy policies before providing any personal information.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">4. Changes to This Policy</h3>
+              <p>We may update this Privacy Policy from time to time. Any changes will be posted here, and we encourage you to review this policy periodically.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">5. Contact Us</h3>
+              <p>If you have any questions about this Privacy Policy, please contact us at support@airdropor.com</p>
+            </div>
+            
+            <p>By using AirDropor, you agree to the terms outlined in this Privacy Policy.</p>
+            
+            <p>Thank you for trusting AirDropor! 🚀</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
