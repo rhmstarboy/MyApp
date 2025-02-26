@@ -14,19 +14,18 @@ import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
-import SplashScreen from "@/pages/splash-screen";
 import { useLocation } from "wouter";
 
 function Router() {
   const [location] = useLocation();
-  const showNav = !['/', '/auth', '/splash'].includes(location);
+  const showNav = !['/', '/auth'].includes(location);
 
   return (
     <>
       {showNav && <NavBar />}
       <Switch>
-        {/* SplashScreen is the primary route */}
-        <Route path="/" component={SplashScreen} />
+        {/* Auth page is the primary route */}
+        <Route path="/" component={AuthPage} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/loading-test" component={LoadingTest} />
         <ProtectedRoute path="/home" component={Home} />
