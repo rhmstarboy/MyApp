@@ -79,13 +79,13 @@ export function LoadingScreen({ onGetStarted }: LoadingScreenProps) {
           className="space-y-4"
         >
           <h1 className="text-4xl font-bold text-primary">
-            CryptoLearn
+            Airdropor
           </h1>
           <p className="text-xl text-muted-foreground">
-            Welcome to Your Crypto Journey
+            Welcome to Airdropor
           </p>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            Get airdrop updates and learn about cryptocurrency while earning rewards
+            Get airdrop updates and make more money 💰
           </p>
 
           {onGetStarted && (
