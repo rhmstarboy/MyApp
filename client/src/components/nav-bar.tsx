@@ -17,7 +17,7 @@ const NavBar = () => {
   };
 
   const items = [
-    { path: "/home", icon: Home, label: "Latest" },
+    { path: "/home", icon: Home, label: "Home" },
     { path: "/games", icon: Gamepad2, label: "Games" },
     { path: "/tutorials", icon: Video, label: "Tutorials" },
     { path: "/support", icon: Heart, label: "Support" },
@@ -25,26 +25,27 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 nav-gradient border-t border-border p-2 z-50">
-      <div className="flex justify-around items-center max-w-md mx-auto">
+    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 nav-gradient border border-border/50 rounded-full p-2 z-50 backdrop-blur-md shadow-lg">
+      <div className="flex justify-around items-center gap-1">
         {items.map(({ path, icon: Icon, label }) => (
           <button
             key={path}
             onClick={() => setLocation(path)}
             className={cn(
-              "flex flex-col items-center p-2 rounded-lg transition-colors",
+              "flex flex-col items-center p-2 rounded-full transition-all duration-200 hover:scale-110",
+              path === "/home" ? "px-6" : "px-3", // Make home button wider
               location === path
-                ? "text-primary"
-                : "text-muted-foreground hover:text-primary"
+                ? "text-primary bg-primary/20 shadow-[0_0_10px_rgba(var(--primary),0.3)]"
+                : "text-muted-foreground hover:text-primary hover:bg-primary/10"
             )}
           >
-            <Icon size={24} />
+            <Icon size={path === "/home" ? 28 : 24} /> {/* Make home icon bigger */}
             <span className="text-xs mt-1">{label}</span>
           </button>
         ))}
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center p-2 rounded-lg transition-colors text-muted-foreground hover:text-destructive"
+          className="flex flex-col items-center p-2 px-3 rounded-full transition-all duration-200 hover:scale-110 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
         >
           <LogOut size={24} />
           <span className="text-xs mt-1">Logout</span>
