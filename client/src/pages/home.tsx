@@ -30,6 +30,30 @@ const Home = () => {
       return [
         {
           id: 1,
+          name: "Sonus Exchange",
+          description: "Participate in the Sonus Exchange airdrop by providing liquidity in eligible pools and staking LP tokens. Earn points during Phase 2 to claim your veSONUS positions.",
+          logo: "/attached_assets/IMG_7606.png",
+          reward: "SONUS Tokens",
+          totalValue: "200M SONUS",
+          platform: "Soneium",
+          status: "confirmed",
+          isFeatured: true,
+          joinLink: "https://sonus.exchange",
+          deadline: new Date("2024-12-31"),
+          steps: [
+            "Create a Wallet: Set up a compatible wallet (like MetaMask)",
+            "Connect to Soneium Mainnet and ensure you have ETH",
+            "Visit Sonus Exchange through Soneium website",
+            "Connect Your Wallet to Sonus Exchange",
+            "Provide Liquidity in eligible pools (ETH-USDC, USDC-USDT, etc.)",
+            "Stake Your LP Positions to maximize points",
+            "Monitor Your Points on Sonus dashboard",
+            "Maintain Position during Phase 2 period",
+            "Claim veSONUS positions after TGE"
+          ]
+        },
+        {
+          id: 2,
           name: "Ethereal Season Zero",
           description: "Participate in Ethereal's Season Zero campaign to earn rewards and points by depositing USDe tokens. Earn additional rewards through referrals and optional boosting opportunities.",
           logo: "", // Will be filled with logo URL
