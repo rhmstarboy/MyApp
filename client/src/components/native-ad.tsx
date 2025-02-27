@@ -7,7 +7,7 @@ interface NativeAdProps {
 
 export function NativeAd({ 
   className,
-  adUnitId = 'ca-app-pub-4420776878768276/2649994893' // Default ad unit ID
+  adUnitId = 'ca-app-pub-4420776878768276/4648669940' // Your ad unit ID
 }: NativeAdProps) {
   useEffect(() => {
     // Initialize AdMob
@@ -16,7 +16,7 @@ export function NativeAd({
         // Wait for window.adsbygoogle
         if (!(window as any).adsbygoogle) {
           const script = document.createElement('script');
-          script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-4420776878768276`;
+          script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4420776878768276`;
           script.async = true;
           script.crossOrigin = 'anonymous';
           document.head.appendChild(script);
@@ -48,7 +48,7 @@ export function NativeAd({
           padding: '20px',
           borderRadius: '8px'
         }}
-        data-ad-client="ca-app-pub-4420776878768276"
+        data-ad-client="ca-pub-4420776878768276"
         data-ad-slot={adUnitId}
         data-ad-format="fluid"
         data-ad-layout-key="-fb+5w+4e-db+86"
