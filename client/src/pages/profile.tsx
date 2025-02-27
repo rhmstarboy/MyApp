@@ -5,6 +5,7 @@ import { Settings, Bell, Shield, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { NativeAd } from "@/components/native-ad"; // Add import
 
 // Avatar mapping (keep in sync with avatar-selector.tsx)
 const avatarEmojis: Record<string, string> = {
@@ -67,15 +68,19 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground">Total Value</p>
               </div>
             </div>
+
+            <div className="mb-6">
+              <NativeAd className="w-full" />
+            </div>
           </CardContent>
         </Card>
 
         <div className="space-y-2">
           {[
             { icon: Settings, label: "Settings", onClick: () => {} },
-            { 
-              icon: Shield, 
-              label: "Privacy Policy", 
+            {
+              icon: Shield,
+              label: "Privacy Policy",
               onClick: () => {},
               isDialog: true,
               dialog: (
