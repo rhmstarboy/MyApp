@@ -11,7 +11,7 @@ import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
-import { AdBanner } from "@/components/ad-banner"; // Added import
+//import { AdBanner } from "@/components/ad-banner"; // Removed import
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -186,7 +186,7 @@ const Home = () => {
         {/* Ad Space */}
         <div className="p-4">
           <div className="h-[100px] flex items-center justify-center mb-8">
-            <AdBanner className="w-full max-w-[320px] h-[50px]" /> {/* Replaced placeholder */}
+            {/* Removed AdBanner */}
           </div>
 
           {/* Crypto Price Tracker wrapped in ErrorBoundary */}
