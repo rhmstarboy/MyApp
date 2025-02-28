@@ -11,7 +11,6 @@ import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
-import { AdBanner } from "@/components/ad-banner"; // Added import
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -148,9 +147,7 @@ const Home = () => {
           ]
         }
       ];
-    },
-    retry: 3,
-    retryDelay: 5000
+    }
   });
 
   const filteredAirdrops = airdrops?.filter((airdrop: Airdrop) =>
@@ -254,12 +251,7 @@ const Home = () => {
           </Tabs>
         </div>
 
-        {/* Ad Space */}
         <div className="p-4">
-          <div className="h-[100px] flex items-center justify-center mb-8">
-            <AdBanner className="w-full max-w-[320px] h-[50px]" />
-          </div>
-
           {/* Crypto Price Tracker wrapped in ErrorBoundary */}
           <ErrorBoundary>
             <div>
