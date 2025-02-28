@@ -15,6 +15,7 @@ import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
 import { useLocation } from "wouter";
+import PrivacyPolicy from "@/pages/privacy-policy"; // Added import
 
 function Router() {
   const [location] = useLocation();
@@ -27,6 +28,7 @@ function Router() {
         {/* Loading test (splash screen) is the primary route */}
         <Route path="/" component={LoadingTest} />
         <Route path="/auth" component={AuthPage} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} /> {/* Added route */}
         <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/games" component={Games} />
         <ProtectedRoute path="/comments" component={Comments} />
