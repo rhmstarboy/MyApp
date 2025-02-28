@@ -2,7 +2,6 @@ import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Home, Heart, Video, User, LogOut, Gamepad2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 
 const NavBar = () => {
   const [location, setLocation] = useLocation();

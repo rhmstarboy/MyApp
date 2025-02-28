@@ -11,6 +11,7 @@ import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
+import { AdBanner } from "@/components/ad-banner"; // Added import
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -23,59 +24,10 @@ const Home = () => {
     return null;
   }
 
-  const customAirdrops = [
-    {
-      id: 3,
-      name: "Airdrop 1",
-      description: "Description for Airdrop 1",
-      logo: "",
-      reward: "Reward 1",
-      totalValue: "$100",
-      platform: "Platform 1",
-      icon: Sparkles,
-      status: "confirmed",
-      isFeatured: true,
-      joinLink: "https://example.com/airdrop1",
-      deadline: new Date("2024-01-31"),
-      steps: ["Step 1", "Step 2", "Step 3"]
-    },
-    {
-      id: 4,
-      name: "Airdrop 2",
-      description: "Description for Airdrop 2",
-      logo: "",
-      reward: "Reward 2",
-      totalValue: "$200",
-      platform: "Platform 2",
-      icon: Coins,
-      status: "confirmed",
-      isFeatured: false,
-      joinLink: "https://example.com/airdrop2",
-      deadline: new Date("2024-02-28"),
-      steps: ["Step 1", "Step 2", "Step 3", "Step 4"]
-    },
-    {
-      id: 5,
-      name: "Airdrop 3",
-      description: "Description for Airdrop 3",
-      logo: "",
-      reward: "Reward 3",
-      totalValue: "$300",
-      platform: "Platform 3",
-      icon: Sparkles,
-      status: "unconfirmed",
-      isFeatured: false,
-      joinLink: "https://example.com/airdrop3",
-      deadline: new Date("2024-03-31"),
-      steps: ["Step 1", "Step 2"]
-    }
-  ];
-
-
-  const { data: fetchedAirdrops, isLoading, error } = useQuery({
+  const { data: airdrops, isLoading, error } = useQuery<Airdrop[]>({
     queryKey: ["/api/airdrops"],
     queryFn: () => {
-      // Static airdrop data for testing.  This could be replaced with a real fetch call.
+      // Static airdrop data for testing
       return [
         {
           id: 1,
@@ -85,7 +37,7 @@ const Home = () => {
           reward: "SONUS Tokens",
           totalValue: "200M SONUS",
           platform: "Soneium",
-          icon: Sparkles,
+          icon: Sparkles, // Adding Lucide icon for Sonus
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://sonus.exchange",
@@ -110,7 +62,7 @@ const Home = () => {
           reward: "Points & Rewards",
           totalValue: "$500",
           platform: "Ethereum",
-          icon: Coins,
+          icon: Coins, // Adding Lucide icon for Ethereal
           status: "confirmed",
           isFeatured: false,
           joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
@@ -129,9 +81,6 @@ const Home = () => {
     retry: 3,
     retryDelay: 5000
   });
-
-  // Combine fetched airdrops with our custom ones
-  const airdrops = fetchedAirdrops ? [...fetchedAirdrops, ...customAirdrops] : customAirdrops;
 
   const filteredAirdrops = airdrops?.filter((airdrop: Airdrop) =>
     airdrop.name.toLowerCase().includes(search.toLowerCase())
@@ -234,7 +183,12 @@ const Home = () => {
           </Tabs>
         </div>
 
+        {/* Ad Space */}
         <div className="p-4">
+          <div className="h-[100px] flex items-center justify-center mb-8">
+            <AdBanner className="w-full max-w-[320px] h-[50px]" /> {/* Replaced placeholder */}
+          </div>
+
           {/* Crypto Price Tracker wrapped in ErrorBoundary */}
           <ErrorBoundary>
             <div>
