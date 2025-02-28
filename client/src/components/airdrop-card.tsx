@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -15,19 +16,33 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import ShareButton from "./share-button";
 import { useToast } from "@/hooks/use-toast";
+import { StatusDot } from "./status-dot";
 import type { Airdrop } from "@shared/schema";
-
-interface Airdrop extends Airdrop {
-  icon?: React.ComponentType<{ size: number }>; // Added icon property
-}
 
 interface AirdropCardProps {
   airdrop: Airdrop;
 }
+
+const iconVariants = {
+  initial: { 
+    scale: 1,
+    rotate: 0,
+    opacity: 0.8
+  },
+  animate: {
+    scale: [1, 1.2, 1],
+    rotate: [0, 10, -10, 0],
+    opacity: [0.8, 1, 0.8],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
 
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
@@ -56,20 +71,37 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   };
 
   return (
-    <>
     <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
-        <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
+        <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20 relative overflow-visible">
           {airdrop.icon ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary">
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary rounded-full"
+              variants={iconVariants}
+              initial="initial"
+              animate="animate"
+            >
               <airdrop.icon size={24} />
-            </div>
+            </motion.div>
           ) : (
             <>
               <AvatarImage src={airdrop.logo} alt={airdrop.name} />
               <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
             </>
           )}
+          <motion.div
+            className="absolute inset-0 border-2 border-primary/20 rounded-full"
+            initial={{ scale: 1 }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
         </Avatar>
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold truncate">{airdrop.name}</h3>
@@ -96,9 +128,12 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         </div>
 
         <div className="mt-auto">
-          <p className="text-xs text-muted-foreground">
-            Deadline: {format(new Date(airdrop.deadline), "MMM d, yyyy")}
-          </p>
+          <div className="flex items-center gap-2">
+            <StatusDot />
+            <p className="text-xs text-muted-foreground">
+              Status: <span className="text-green-500">Ongoing</span>
+            </p>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex gap-2 h-[60px]">
@@ -126,12 +161,12 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         </Dialog>
 
         <div className="flex gap-2">
-          <ShareButton 
+          <ShareButton
             title={airdrop.name}
             description={airdrop.description}
             url={airdrop.joinLink}
           />
-          <Button 
+          <Button
             className="bg-primary/20 hover:bg-primary/30"
             onClick={handleJoin}
           >
@@ -140,7 +175,6 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
         </div>
       </CardFooter>
     </Card>
-    </>
   );
 };
 

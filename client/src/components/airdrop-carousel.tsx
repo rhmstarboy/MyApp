@@ -27,7 +27,6 @@ const AirdropCarousel = ({ children, onViewMore }: CarouselProps) => {
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-4">
           {children}
-          {/* Only show View More card when onViewMore is provided */}
           {onViewMore && (
             <div className="flex-[0_0_300px] px-2">
               <div className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors rounded-lg flex items-center justify-center border border-primary/20">
