@@ -41,7 +41,6 @@ const Home = () => {
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://www.sunder.finance/swap",
-          deadline: new Date("2024-12-31"),
           steps: [
             "Visit Sunder Protocol website and connect your wallet (preferably Rabby or another EVM-compatible wallet)",
             "Acquire HYPE tokens from Hyperliquid",
@@ -66,7 +65,6 @@ const Home = () => {
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://zealy.io/cw/sedracoin/questboard",
-          deadline: new Date("2024-12-31"),
           steps: [
             "Create a Zealy Account",
             "Join the SedraCoin Campaign",
@@ -90,7 +88,6 @@ const Home = () => {
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://portal.lisk.com/airdrop",
-          deadline: new Date("2024-12-31"),
           steps: [
             "Meet at least two eligibility criteria:",
             "- Complete CAPTCHA verification",
@@ -117,7 +114,6 @@ const Home = () => {
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://sonus.exchange",
-          deadline: new Date("2024-12-31"),
           steps: [
             "Create a Wallet: Set up a compatible wallet (like MetaMask)",
             "Connect to Soneium Mainnet and ensure you have ETH",
@@ -142,7 +138,6 @@ const Home = () => {
           status: "confirmed",
           isFeatured: false,
           joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
-          deadline: new Date("2025-05-29"),
           steps: [
             "Acquire USDe Tokens from Binance",
             "Visit Ethereal Platform and connect Web3 wallet",
