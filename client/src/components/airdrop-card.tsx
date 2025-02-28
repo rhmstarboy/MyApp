@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -27,12 +27,17 @@ interface AirdropCardProps {
 }
 
 const iconVariants = {
-  initial: { scale: 1 },
+  initial: { 
+    scale: 1,
+    rotate: 0,
+    opacity: 0.8
+  },
   animate: {
-    scale: [1, 1.1, 1],
-    rotate: [0, 5, -5, 0],
+    scale: [1, 1.2, 1],
+    rotate: [0, 10, -10, 0],
+    opacity: [0.8, 1, 0.8],
     transition: {
-      duration: 4,
+      duration: 3,
       repeat: Infinity,
       ease: "easeInOut"
     }
@@ -68,10 +73,10 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   return (
     <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
-        <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
+        <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20 relative overflow-visible">
           {airdrop.icon ? (
             <motion.div
-              className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary"
+              className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary rounded-full"
               variants={iconVariants}
               initial="initial"
               animate="animate"
@@ -84,6 +89,19 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
               <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
             </>
           )}
+          <motion.div
+            className="absolute inset-0 border-2 border-primary/20 rounded-full"
+            initial={{ scale: 1 }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
         </Avatar>
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold truncate">{airdrop.name}</h3>
