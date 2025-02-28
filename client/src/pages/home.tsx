@@ -11,7 +11,6 @@ import CryptoPriceTracker from "@/components/crypto-price-tracker";
 import { ErrorBoundary } from "@/components/error-boundary";
 import Logo from "@/components/logo";
 import type { Airdrop } from "@shared/schema";
-//import { AdBanner } from "@/components/ad-banner"; // Removed import
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -37,7 +36,7 @@ const Home = () => {
           reward: "SONUS Tokens",
           totalValue: "200M SONUS",
           platform: "Soneium",
-          icon: Sparkles, // Adding Lucide icon for Sonus
+          icon: Sparkles,
           status: "confirmed",
           isFeatured: true,
           joinLink: "https://sonus.exchange",
@@ -62,7 +61,7 @@ const Home = () => {
           reward: "Points & Rewards",
           totalValue: "$500",
           platform: "Ethereum",
-          icon: Coins, // Adding Lucide icon for Ethereal
+          icon: Coins,
           status: "confirmed",
           isFeatured: false,
           joinLink: "https://deposit.ethereal.trade/points?ref=BMGTIU",
@@ -183,12 +182,7 @@ const Home = () => {
           </Tabs>
         </div>
 
-        {/* Ad Space */}
         <div className="p-4">
-          <div className="h-[100px] flex items-center justify-center mb-8">
-            {/* Removed AdBanner */}
-          </div>
-
           {/* Crypto Price Tracker wrapped in ErrorBoundary */}
           <ErrorBoundary>
             <div>

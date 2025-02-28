@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings, Bell, Shield, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { NativeAd } from "@/components/native-ad"; // Add import
 
 // Avatar mapping (keep in sync with avatar-selector.tsx)
 const avatarEmojis: Record<string, string> = {
@@ -66,10 +65,6 @@ const Profile = () => {
                 <p className="text-2xl font-bold text-primary">${user?.totalValue || 0}</p>
                 <p className="text-sm text-muted-foreground">Total Value</p>
               </div>
-            </div>
-
-            <div className="mb-6">
-              <NativeAd className="w-full" />
             </div>
           </CardContent>
         </Card>
