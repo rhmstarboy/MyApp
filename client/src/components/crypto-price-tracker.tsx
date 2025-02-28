@@ -10,7 +10,7 @@ import WhaleAlert from "./whale-alert";
 import NetworkHealth from "./network-health";
 import GlobalTrading from "./global-trading";
 import SocialSentiment from "./social-sentiment";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 interface CryptoPrice {
   symbol: string;
@@ -242,21 +242,8 @@ export default function CryptoPriceTracker() {
         </TabsList>
 
         <TabsContent value="hot">
-          <AirdropCarousel onViewMore={handleViewMore}>
+          <AirdropCarousel>
             {HOT_SYMBOLS.map(symbol => renderCryptoCard(symbol))}
-            <div className="flex-[0_0_300px] px-2">
-              <Card className="p-6 h-[200px] card-gradient hover:bg-black/70 transition-colors border border-primary/20">
-                <div className="h-full flex items-center justify-center">
-                  <Button 
-                    variant="outline"
-                    className="text-lg"
-                    onClick={handleViewMore}
-                  >
-                    View More
-                  </Button>
-                </div>
-              </Card>
-            </div>
           </AirdropCarousel>
         </TabsContent>
       </Tabs>
