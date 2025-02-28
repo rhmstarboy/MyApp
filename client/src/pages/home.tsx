@@ -23,10 +23,59 @@ const Home = () => {
     return null;
   }
 
-  const { data: airdrops, isLoading, error } = useQuery<Airdrop[]>({
+  const customAirdrops = [
+    {
+      id: 3,
+      name: "Airdrop 1",
+      description: "Description for Airdrop 1",
+      logo: "",
+      reward: "Reward 1",
+      totalValue: "$100",
+      platform: "Platform 1",
+      icon: Sparkles,
+      status: "confirmed",
+      isFeatured: true,
+      joinLink: "https://example.com/airdrop1",
+      deadline: new Date("2024-01-31"),
+      steps: ["Step 1", "Step 2", "Step 3"]
+    },
+    {
+      id: 4,
+      name: "Airdrop 2",
+      description: "Description for Airdrop 2",
+      logo: "",
+      reward: "Reward 2",
+      totalValue: "$200",
+      platform: "Platform 2",
+      icon: Coins,
+      status: "confirmed",
+      isFeatured: false,
+      joinLink: "https://example.com/airdrop2",
+      deadline: new Date("2024-02-28"),
+      steps: ["Step 1", "Step 2", "Step 3", "Step 4"]
+    },
+    {
+      id: 5,
+      name: "Airdrop 3",
+      description: "Description for Airdrop 3",
+      logo: "",
+      reward: "Reward 3",
+      totalValue: "$300",
+      platform: "Platform 3",
+      icon: Sparkles,
+      status: "unconfirmed",
+      isFeatured: false,
+      joinLink: "https://example.com/airdrop3",
+      deadline: new Date("2024-03-31"),
+      steps: ["Step 1", "Step 2"]
+    }
+  ];
+
+
+  const { data: fetchedAirdrops, isLoading, error } = useQuery({
     queryKey: ["/api/airdrops"],
     queryFn: () => {
-      // Static airdrop data for testing
+      // Static airdrop data for testing.  This could be replaced with a real fetch call.
       return [
         {
           id: 1,
@@ -80,6 +129,9 @@ const Home = () => {
     retry: 3,
     retryDelay: 5000
   });
+
+  // Combine fetched airdrops with our custom ones
+  const airdrops = fetchedAirdrops ? [...fetchedAirdrops, ...customAirdrops] : customAirdrops;
 
   const filteredAirdrops = airdrops?.filter((airdrop: Airdrop) =>
     airdrop.name.toLowerCase().includes(search.toLowerCase())
