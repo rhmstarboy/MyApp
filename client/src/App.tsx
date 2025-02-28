@@ -14,11 +14,12 @@ import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import { useLocation } from "wouter";
 
 function Router() {
   const [location] = useLocation();
-  const showNav = !['/', '/auth'].includes(location);
+  const showNav = !['/', '/auth', '/privacy-policy'].includes(location);
 
   return (
     <>
@@ -27,6 +28,7 @@ function Router() {
         {/* Loading test (splash screen) is the primary route */}
         <Route path="/" component={LoadingTest} />
         <Route path="/auth" component={AuthPage} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
         <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/games" component={Games} />
         <ProtectedRoute path="/comments" component={Comments} />
