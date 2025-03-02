@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -26,24 +26,29 @@ interface AirdropCardProps {
   airdrop: Airdrop;
 }
 
+const iconVariants = {
+  initial: { 
+    scale: 1,
+    rotate: 0,
+    opacity: 0.8
+  },
+  animate: {
+    scale: [1, 1.2, 1],
+    rotate: [0, 10, -10, 0],
+    opacity: [0.8, 1, 0.8],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
   const { toast } = useToast();
 
-  // Add smartPopunder script
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://joohugreene.net/4/9026395';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  const handleJoin = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  const handleJoin = () => {
     const userDataStr = localStorage.getItem('userData');
     if (!userDataStr) return;
 
@@ -57,21 +62,8 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
-    // Create and click a hidden link for the actual airdrop URL
-    const airdropLink = document.createElement('a');
-    airdropLink.href = airdrop.joinLink;
-    airdropLink.target = '_blank';
-    airdropLink.style.display = 'none';
-    document.body.appendChild(airdropLink);
-
-    // Open popunder first
-    window.open('https://joohugreene.net/4/9026395', '_blank');
-
-    // Trigger the actual airdrop link click after a short delay
-    setTimeout(() => {
-      airdropLink.click();
-      document.body.removeChild(airdropLink);
-    }, 100);
+    // Open the airdrop link directly
+    window.open(airdrop.joinLink, '_blank');
 
     toast({
       title: "Airdrop Claimed!",
@@ -83,10 +75,20 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
     <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
         <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20 relative overflow-visible">
-          {airdrop.logo ? (
-            <AvatarImage src={airdrop.logo} alt={airdrop.name} />
+          {airdrop.icon ? (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary rounded-full"
+              variants={iconVariants}
+              initial="initial"
+              animate="animate"
+            >
+              {airdrop.icon && <airdrop.icon size={24} />}
+            </motion.div>
           ) : (
-            <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
+            <>
+              {airdrop.logo && <AvatarImage src={airdrop.logo} alt={airdrop.name} />}
+              <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
+            </>
           )}
           <motion.div
             className="absolute inset-0 border-2 border-primary/20 rounded-full"
