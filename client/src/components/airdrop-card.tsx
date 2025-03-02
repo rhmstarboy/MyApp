@@ -26,24 +26,6 @@ interface AirdropCardProps {
   airdrop: Airdrop;
 }
 
-const iconVariants = {
-  initial: { 
-    scale: 1,
-    rotate: 0,
-    opacity: 0.8
-  },
-  animate: {
-    scale: [1, 1.2, 1],
-    rotate: [0, 10, -10, 0],
-    opacity: [0.8, 1, 0.8],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
-
 const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
   const { toast } = useToast();
@@ -75,12 +57,20 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
+    // Create and click a hidden link for the actual airdrop URL
+    const airdropLink = document.createElement('a');
+    airdropLink.href = airdrop.joinLink;
+    airdropLink.target = '_blank';
+    airdropLink.style.display = 'none';
+    document.body.appendChild(airdropLink);
+
     // Open popunder first
     window.open('https://joohugreene.net/4/9026395', '_blank');
 
-    // Then open the actual airdrop link after a short delay
+    // Trigger the actual airdrop link click after a short delay
     setTimeout(() => {
-      window.open(airdrop.joinLink, '_blank');
+      airdropLink.click();
+      document.body.removeChild(airdropLink);
     }, 100);
 
     toast({
