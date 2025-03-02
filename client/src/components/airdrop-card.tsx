@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -48,7 +48,20 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const [isStepsOpen, setIsStepsOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleJoin = () => {
+  // Add smartPopunder script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://joohugreene.net/4/9026395';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleJoin = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     const userDataStr = localStorage.getItem('userData');
     if (!userDataStr) return;
 
@@ -62,7 +75,13 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
 
     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
-    window.open(airdrop.joinLink, '_blank');
+    // Open popunder first
+    window.open('https://joohugreene.net/4/9026395', '_blank');
+
+    // Then open the actual airdrop link after a short delay
+    setTimeout(() => {
+      window.open(airdrop.joinLink, '_blank');
+    }, 100);
 
     toast({
       title: "Airdrop Claimed!",
@@ -74,20 +93,10 @@ const AirdropCard = ({ airdrop }: AirdropCardProps) => {
     <Card className="h-[280px] w-[300px] overflow-hidden border-primary/20 card-gradient hover:bg-black/70 transition-colors flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4 h-[72px]">
         <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20 relative overflow-visible">
-          {airdrop.icon ? (
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center bg-primary/20 text-primary rounded-full"
-              variants={iconVariants}
-              initial="initial"
-              animate="animate"
-            >
-              <airdrop.icon size={24} />
-            </motion.div>
+          {airdrop.logo ? (
+            <AvatarImage src={airdrop.logo} alt={airdrop.name} />
           ) : (
-            <>
-              <AvatarImage src={airdrop.logo} alt={airdrop.name} />
-              <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
-            </>
+            <AvatarFallback>{airdrop.name[0]}</AvatarFallback>
           )}
           <motion.div
             className="absolute inset-0 border-2 border-primary/20 rounded-full"
