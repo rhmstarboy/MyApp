@@ -1,23 +1,12 @@
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PrivacyPolicy() {
-  useEffect(() => {
-    // Redirect to the external privacy policy page after a short delay
-    const timer = setTimeout(() => {
-      window.location.href = 'https://airdropor.icu/privacy';
-    }, 5000); // 5 seconds delay to allow reading the content
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="min-h-screen w-full py-8 px-4">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle>Privacy Policy for AirDropor</CardTitle>
           <p className="text-sm text-muted-foreground">Last Updated: Feb, 2025</p>
-          <p className="text-sm text-yellow-500 mt-2">Redirecting to updated privacy policy in 5 seconds...</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <p>Thank you for using AirDropor. Your privacy is important to us. This Privacy Policy explains how we handle your information when you use our app.</p>
