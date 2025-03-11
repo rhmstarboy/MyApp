@@ -25,10 +25,12 @@ function Router() {
     <>
       {showNav && <NavBar />}
       <Switch>
-        {/* Loading test (splash screen) is the primary route */}
+        {/* Public routes */}
         <Route path="/" component={LoadingTest} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />
+
+        {/* Protected routes */}
         <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/games" component={Games} />
         <ProtectedRoute path="/comments" component={Comments} />
@@ -42,14 +44,12 @@ function Router() {
 }
 
 function App() {
-  // Check if user is logged in to show/hide NavBar and Mascot
   const isLoggedIn = !!localStorage.getItem('userData');
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen page-gradient text-foreground">
         <Router />
-        {/* Only show Mascot if user is logged in */}
         {isLoggedIn && <CryptoMascot />}
         <Toaster />
       </div>
