@@ -15,11 +15,12 @@ import NotFound from "@/pages/not-found";
 import LoadingTest from "@/pages/loading-test";
 import AuthPage from "@/pages/auth-page";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import PrivacyPolicy2 from "@/pages/privacy-policy2"; // Added import for the new privacy policy page.
 import { useLocation } from "wouter";
 
 function Router() {
   const [location] = useLocation();
-  const showNav = !['/', '/auth', '/privacy-policy'].includes(location);
+  const showNav = !['/', '/auth', '/privacy-policy', '/privacy-policy2'].includes(location); // Updated to include the new route
 
   return (
     <>
@@ -28,7 +29,7 @@ function Router() {
         {/* Loading test (splash screen) is the primary route */}
         <Route path="/" component={LoadingTest} />
         <Route path="/auth" component={AuthPage} />
-        <Route path="/privacy-policy" component={PrivacyPolicy} />
+        <Route path="/privacy-policy2" component={PrivacyPolicy2} /> {/* Added new route */}
         <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/games" component={Games} />
         <ProtectedRoute path="/comments" component={Comments} />

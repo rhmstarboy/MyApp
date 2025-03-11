@@ -34,7 +34,7 @@ const Profile = () => {
   };
 
   const handlePrivacyPolicy = () => {
-    window.open('https://airdropor.icu/privacy', '_blank');
+    window.location.href = '/privacy-policy2';
   };
 
   return (
